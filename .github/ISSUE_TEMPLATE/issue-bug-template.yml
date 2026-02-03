@@ -1,0 +1,46 @@
+name: "🐞 Bug report "
+description: "오류나 예기치 않은 동작을 보고합니다."
+title: "[BUG] "     # 기본 이슈 제목 접두사
+labels: ["bug"]
+assignees: []       # 담당자 자동 지정 없으면 빈 배열로 두기
+
+body:
+  - type: textarea
+    attributes:
+      label: "🐛 버그 설명"
+      description: "어떤 문제가 발생했는지 명확하고 간결하게 설명해주세요."
+      placeholder: "예: 로그인 버튼 클릭 시 500 에러 발생"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "🔄 재현 절차"
+      description: "버그가 발생하는 과정을 단계별로 적어주세요."
+      placeholder: |
+        1. '...' 페이지로 이동
+        2. '...' 버튼 클릭
+        3. '...' 동작 수행
+        4. 오류 발생
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "🖼️ 스크린샷"
+      description: "가능하다면 스크린샷을 첨부해주세요."
+      placeholder: "이미지를 드래그하여 첨부할 수 있습니다."
+
+  - type: textarea
+    attributes:
+      label: "💻 실행 환경"
+      description: "버그가 발생한 환경을 작성해주세요."
+      placeholder: |
+        - OS: Windows 11 / macOS Ventura
+        - 브라우저: Chrome 114 / Safari 16.5
+        - 개발환경: VSCode / IntelliJ / Postman 등
+
+  - type: textarea
+    attributes:
+      label: "📎 추가 정보"
+      description: "관련 로그, 콘솔 에러, 참고자료 등 추가로 공유할 내용이 있다면 작성해주세요."
