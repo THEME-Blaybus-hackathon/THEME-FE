@@ -1,0 +1,24 @@
+import styled, { createGlobalStyle } from 'styled-components';
+
+export const GlobalStyle = createGlobalStyle`
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;         
+    padding: 0;
+    overflow: hidden; 
+    background: ${({ theme }) => theme.colors.primaryblack}
+`;
+
+export const PageWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: ${({ theme }) => theme.colors.primaryblack};
+  overflow: hidden;
+`;

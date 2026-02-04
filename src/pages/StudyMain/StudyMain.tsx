@@ -2,15 +2,11 @@ import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Line } from '@react-three/drei';
 import DroneModel from './components/DroneModel';
+import Header from '../../components/Header';
 
 import {
   GlobalStyle,
   Container,
-  Header,
-  HeaderTitle,
-  Nav,
-  NavItem,
-  LogoutButton,
   Main,
   ViewportFrame,
   Viewport,
@@ -72,7 +68,9 @@ function XGuide({
 export default function StudyMain() {
   const [explode, setExplode] = useState(0);
 
-  const [rightTab, setRightTab] = useState<'MODEL' | 'PARTS' | 'NOTES'>('MODEL');
+  const [rightTab, setRightTab] = useState<'MODEL' | 'PARTS' | 'NOTES'>(
+    'MODEL',
+  );
   const [selectedModel, setSelectedModel] = useState('Drone');
   const [panelOpen, setPanelOpen] = useState(true);
 
@@ -99,16 +97,7 @@ export default function StudyMain() {
       <GlobalStyle />
 
       <Container>
-        <Header>
-          <HeaderTitle>SIMVEX</HeaderTitle>
-
-          <Nav>
-            <NavItem>스터디</NavItem>
-            <NavItem>워크플로우</NavItem>
-            <NavItem>MY스터디자료</NavItem>
-            <LogoutButton>↪ 로그아웃</LogoutButton>
-          </Nav>
-        </Header>
+        <Header />
 
         <Main>
           <ViewportFrame>
@@ -194,7 +183,9 @@ export default function StudyMain() {
                     </RailTab>
                   </RailTabs>
 
-                  <AIButton onClick={() => alert('AI 기능 연결 예정')}>AI</AIButton>
+                  <AIButton onClick={() => alert('AI 기능 연결 예정')}>
+                    AI
+                  </AIButton>
                 </RightRail>
 
                 {/* 하단 슬라이더 */}

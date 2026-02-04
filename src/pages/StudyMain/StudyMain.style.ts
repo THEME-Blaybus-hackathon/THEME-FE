@@ -27,79 +27,14 @@ export const Container = styled.div`
   padding: 0;
   overflow: hidden;
 
-  font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-family:
+    Pretendard,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
   color: rgba(255, 255, 255, 0.92);
-`;
-
-/*  Header */
-export const Header = styled.header`
-  height: 84px;
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 34px;
-
-  background: rgba(11, 11, 11, 0.96);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-`;
-
-export const HeaderTitle = styled.div`
-  font-weight: 900;
-  font-size: 26px;
-  letter-spacing: 0.5px;
-  color: #ffffff;
-`;
-
-export const Nav = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 34px;
-
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-export const NavItem = styled.span<{ active?: boolean }>`
-  cursor: pointer;
-  font-weight: 800;
-  transition: all 160ms ease;
-
-  color: ${({ active }) => (active ? '#ffffff' : 'rgba(255,255,255,0.86)')};
-
-  &:hover {
-    color: rgba(160, 255, 245, 0.95);
-    transform: translateY(-1px);
-  }
-`;
-
-export const LogoutButton = styled.button`
-  margin-left: 12px;
-  padding: 12px 18px;
-
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 14px;
-  cursor: pointer;
-
-  background: rgba(60, 150, 140, 0.72);
-  color: rgba(255, 255, 255, 0.95);
-
-  font-weight: 900;
-  font-size: 15px;
-
-  transition: all 180ms ease;
-
-  &:hover {
-    background: rgba(60, 150, 140, 0.92);
-    transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
-  }
-
-  &:active {
-    transform: translateY(0px);
-  }
 `;
 
 /* Main / Viewport */
@@ -239,8 +174,8 @@ export const InfoPanel = styled.aside`
   transform: translateY(-50%);
   z-index: 6;
 
-  width: 300px;   
-  height: 400px;  
+  width: 300px;
+  height: 400px;
 
   border-radius: 18px;
   background: rgba(120, 145, 145, 0.75);
