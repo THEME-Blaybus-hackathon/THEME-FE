@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle } from "styled-components";
 
 /*  Global Reset */
 export const GlobalStyle = createGlobalStyle`
@@ -27,7 +27,13 @@ export const Container = styled.div`
   padding: 0;
   overflow: hidden;
 
-  font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-family:
+    Pretendard,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
   color: rgba(255, 255, 255, 0.92);
 `;
 
@@ -67,7 +73,7 @@ export const NavItem = styled.span<{ active?: boolean }>`
   font-weight: 800;
   transition: all 160ms ease;
 
-  color: ${({ active }) => (active ? '#ffffff' : 'rgba(255,255,255,0.86)')};
+  color: ${({ active }) => (active ? "#ffffff" : "rgba(255,255,255,0.86)")};
 
   &:hover {
     color: rgba(160, 255, 245, 0.95);
@@ -231,7 +237,8 @@ export const DownloadButton = styled.button`
   }
 `;
 
-/* Info Panel (오른쪽 패널)*/
+/*
+Info Panel (오른쪽 패널)
 export const InfoPanel = styled.aside`
   position: absolute;
   right: 130px;
@@ -239,8 +246,8 @@ export const InfoPanel = styled.aside`
   transform: translateY(-50%);
   z-index: 6;
 
-  width: 300px;   
-  height: 400px;  
+  width: 300px;
+  height: 400px;
 
   border-radius: 18px;
   background: rgba(120, 145, 145, 0.75);
@@ -260,6 +267,7 @@ export const InfoPanel = styled.aside`
   }
 `;
 
+
 export const InfoHeader = styled.div`
   display: flex;
   align-items: center;
@@ -268,63 +276,150 @@ export const InfoHeader = styled.div`
   font-weight: 900;
   font-size: 18px;
   color: rgba(0, 0, 0, 0.82);
+`;*/
+
+export const InfoBody = styled.div`
+  margin-top: 16px;
+  height: calc(100% - 100px);
+  overflow-y: auto;
+
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: pre-wrap;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
 `;
 
 export const CloseButton = styled.button`
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-
-  border: 0;
-  background: rgba(0, 0, 0, 0.06);
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  line-height: 1;
   cursor: pointer;
-
-  font-size: 22px;
-  color: rgba(0, 0, 0, 0.78);
-
-  transition: all 160ms ease;
+  opacity: 0.7;
+  padding: 5px;
+  transition: opacity 0.2s;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.12);
-    transform: scale(1.03);
-  }
-
-  &:active {
-    transform: scale(0.98);
+    opacity: 1;
   }
 `;
 
-export const InfoBody = styled.div`
-  margin-top: 12px;
-  height: calc(100% - 52px);
-
-  border-radius: 14px;
-  background: rgba(180, 195, 195, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
-  padding: 16px;
-  color: rgba(0, 0, 0, 0.78);
-
-  font-size: 14px;
-  font-weight: 700;
-`;
-
-/*Right Rail*/
 export const RightRail = styled.div`
   position: absolute;
-  right: 36px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 6;
+  right: 24px;
+  top: 10%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+  align-items: flex-end;
+`;
+
+export const IconButton = styled.button<{ active?: boolean }>`
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 11;
+
+  background: ${({ active }) => (active ? "#326666" : "#FFFFFF")};
+  color: ${({ active }) => (active ? "#FFFFFF" : "#444444")};
+
+  font-size: 14px;
+  font-weight: 800;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  ${({ active }) =>
+    active &&
+    `
+    width: 90px;
+  `}
+
+  &:hover {
+    ${({ active }) => !active && "background: #F5F5F5; transform: scale(1.05);"}
+  }
+`;
+
+export const BlueInfoPanel = styled.aside`
+  position: absolute;
+  right: 100px;
+  top: 34px;
+  z-index: 9;
+
+  width: 320px;
+  height: calc(100vh - 150px);
+
+  background: #326666;
+  border-radius: 24px;
+  padding: 34px;
+  color: #ffffff;
+  box-shadow: -10px 20px 40px rgba(0, 0, 0, 0.3);
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 22px;
-
   pointer-events: auto;
+
+  animation: subtleSlide 0.3s ease-out forwards;
+
+  @keyframes subtleSlide {
+    from {
+      opacity: 0;
+      transform: translateX(23px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 `;
 
+export const ActionButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  margin-top: auto;
+  border-radius: 12px;
+  border: none;
+  background: #ffffff;
+  color: rgba(160, 255, 245, 0.28);
+  font-weight: 900;
+  cursor: pointer;
+`;
+
+export const PanelHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+`;
+
+export const PanelTitle = styled.h2`
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 20px 0;
+`;
+/*
 export const RailTabs = styled.div`
   width: 86px;
   height: 360px;
@@ -359,7 +454,7 @@ export const RailTab = styled.button<{ active?: boolean }>`
   transition: all 160ms ease;
 
   color: ${({ active }) =>
-    active ? 'rgba(70, 230, 215, 0.95)' : 'rgba(255,255,255,0.9)'};
+    active ? "rgba(70, 230, 215, 0.95)" : "rgba(255,255,255,0.9)"};
 
   &:hover {
     color: rgba(70, 230, 215, 0.98);
@@ -391,12 +486,13 @@ export const AIButton = styled.button`
   &:active {
     transform: translateY(0px);
   }
-`;
+`;*/
 
 /*Bottom Slider*/
 export const ExplodeBox = styled.div`
   position: absolute;
-  left: 110px;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 64px;
   z-index: 6;
 
@@ -413,11 +509,11 @@ export const ExplodeBox = styled.div`
 
   &:hover {
     opacity: 1;
-    transform: translateY(-1px);
+    transform: translateX(-50%) translateY(-1px);
   }
 `;
 
-export const Slider = styled.input.attrs({ type: 'range' })`
+export const Slider = styled.input.attrs({ type: "range" })`
   width: 320px;
   -webkit-appearance: none;
   appearance: none;

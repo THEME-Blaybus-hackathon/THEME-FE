@@ -1,7 +1,10 @@
-import { useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Line } from '@react-three/drei';
-import DroneModel from './components/DroneModel';
+import { useState } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Line } from "@react-three/drei";
+import DroneModel from "./components/DroneModel";
+import RobotArmModel from "./components/RobotArmModel";
+import RobotGripperModel from "./components/RobotGripperModel";
+import SuspensionModel from "./components/SuspensionModel";
 
 import {
   GlobalStyle,
@@ -17,19 +20,23 @@ import {
   CanvasLayer,
   UILayer,
   LeftControls,
+  IconButton,
   ModelSelect,
   DownloadButton,
-  InfoPanel,
-  InfoHeader,
+  BlueInfoPanel,
+  PanelHeader,
+  PanelTitle,
+  //InfoPanel,
+  //InfoHeader,
   CloseButton,
   InfoBody,
   RightRail,
-  RailTabs,
+  /*RailTabs,
   RailTab,
-  AIButton,
+  AIButton,*/
   ExplodeBox,
   Slider,
-} from './StudyMain.style';
+} from "./StudyMain.style";
 
 /** 3D 씬 안에서 회전하는 X 가이드 */
 function XGuide({
@@ -70,27 +77,46 @@ function XGuide({
 }
 
 export default function StudyMain() {
-  const [explode, setExplode] = useState(0);
+  const [explodes, setExplodes] = useState<Record<string, number>>({
+    Drone: 0,
+    Arm: 0,
+    Gripper: 0,
+    Suspension: 0,
+  });
 
-  const [rightTab, setRightTab] = useState<'MODEL' | 'PARTS' | 'NOTES'>('MODEL');
-  const [selectedModel, setSelectedModel] = useState('Drone');
+  const [rightTab, setRightTab] = useState<"MODEL" | "PARTS" | "NOTES" | null>(
+    "MODEL",
+  );
+  const [selectedModel, setSelectedModel] = useState("Drone");
   const [panelOpen, setPanelOpen] = useState(true);
 
-  const handleClickTab = (tab: 'MODEL' | 'PARTS' | 'NOTES') => {
+  // 현재 선택된 모델의 explode 값
+  const currentExplode = explodes[selectedModel] || 0;
+
+  const handleExplodeChange = (value: number) => {
+    setExplodes((prev) => ({ ...prev, [selectedModel]: value }));
+  };
+
+  const handleClickTab = (tab: "MODEL" | "PARTS" | "NOTES") => {
     setRightTab(tab);
     setPanelOpen(true); //탭 누르면 패널 다시 열리게
   };
 
   const getPanelTitle = () => {
-    if (rightTab === 'MODEL') return 'DRO-1224';
-    if (rightTab === 'PARTS') return '부품 정보';
-    return '노트';
+    if (rightTab === "MODEL") return "DRO-1224";
+    if (rightTab === "PARTS") return "부품 정보";
+    return "노트";
   };
 
   const getPanelContent = () => {
-    if (rightTab === 'MODEL') return '3D Model Drone 입니다.';
-    if (rightTab === 'PARTS') return '드론 부품 리스트/설명 영역입니다.';
-    return '노트를 작성하거나 확인하는 영역입니다.';
+    if (rightTab === "MODEL") return "3D Model Drone 입니다.";
+    if (rightTab === "PARTS") return "드론 부품 리스트/설명 영역입니다.";
+    return "노트를 작성하거나 확인하는 영역입니다.";
+  };
+
+  const handleClosePanel = () => {
+    setPanelOpen(false);
+    setRightTab(null);
   };
 
   return (
@@ -119,20 +145,43 @@ export default function StudyMain() {
                   <ambientLight intensity={0.8} />
                   <directionalLight position={[10, 15, 10]} intensity={1.5} />
 
-                  {/* 모델 + 가이드라인을 같은 그룹에 넣어서 같이 회전 */}
                   <group position={[0, -7.5, 0]}>
-                    {/* 바닥에 살짝 깔리게 y 살짝 내림 */}
                     <group position={[0, -0.25, 0]}>
                       <XGuide size={140} opacity={0.32} />
                     </group>
 
-                    <DroneModel explode={explode} />
-                  </group>
+                    {/* ✨ 모델별로 자신의 저장된 explode 값을 전달 */}
+                    {selectedModel === "Drone" && (
+                      <group scale={[1.2, 1.2, 1.2]}>
+                        <DroneModel explode={explodes.Drone} />
+                      </group>
+                    )}
 
+                    {selectedModel === "Arm" && (
+                      <group scale={[0.35, 0.35, 0.35]}>
+                        <RobotArmModel explode={explodes.Arm} />
+                      </group>
+                    )}
+                    {selectedModel === "Gripper" && (
+                      <group scale={[1.3, 1.3, 1.3]}>
+                        <RobotGripperModel explode={explodes.Gripper} />
+                      </group>
+                    )}
+                    {selectedModel === "Suspension" && (
+                      <group scale={[1.2, 1.2, 1.2]}>
+                        <SuspensionModel explode={explodes.Suspension} />
+                      </group>
+                    )}
+                  </group>
                   <OrbitControls
                     enablePan={false}
                     minDistance={25}
                     maxDistance={80}
+                    //관성 효과 활성화
+                    enableDamping={true}
+                    dampingFactor={0.05}
+                    zoomSpeed={1.2}
+                    rotateSpeed={0.8}
                   />
                 </Canvas>
               </CanvasLayer>
@@ -146,55 +195,54 @@ export default function StudyMain() {
                     onChange={(e) => setSelectedModel(e.target.value)}
                   >
                     <option value="Drone">Drone</option>
-                    <option value="Robot">Robot</option>
-                    <option value="Car">Car</option>
+                    <option value="Arm">Arm</option>
+                    <option value="Gripper">Gripper</option>
+                    <option value="Suspension">Suspension</option>
                   </ModelSelect>
 
                   <DownloadButton title="download">⬇</DownloadButton>
                 </LeftControls>
 
-                {/* 오른쪽 패널 */}
-                {panelOpen && (
-                  <InfoPanel>
-                    <InfoHeader>
-                      <span>{getPanelTitle()}</span>
-                      <CloseButton onClick={() => setPanelOpen(false)}>
-                        ×
-                      </CloseButton>
-                    </InfoHeader>
-
-                    <InfoBody>
-                      <div style={{ fontWeight: 900, marginBottom: 10 }}>
-                        {getPanelContent()}
-                      </div>
-                    </InfoBody>
-                  </InfoPanel>
+                {/* 오른쪽 상세 정보 패널 (파란색) */}
+                {panelOpen && rightTab && (
+                  <BlueInfoPanel key={rightTab}>
+                    {" "}
+                    {/* key 추가: 탭 바뀔 때마다 애니메이션 재생 */}
+                    <PanelHeader>
+                      <span>DRO-1224</span>
+                      <CloseButton onClick={handleClosePanel}>×</CloseButton>
+                    </PanelHeader>
+                    <PanelTitle>{getPanelTitle()}</PanelTitle>
+                    <InfoBody>{getPanelContent()}</InfoBody>
+                  </BlueInfoPanel>
                 )}
 
                 {/* 오른쪽 레일 */}
                 <RightRail>
-                  <RailTabs>
-                    <RailTab
-                      active={rightTab === 'MODEL'}
-                      onClick={() => handleClickTab('MODEL')}
-                    >
-                      모델
-                    </RailTab>
-                    <RailTab
-                      active={rightTab === 'PARTS'}
-                      onClick={() => handleClickTab('PARTS')}
-                    >
-                      부품
-                    </RailTab>
-                    <RailTab
-                      active={rightTab === 'NOTES'}
-                      onClick={() => handleClickTab('NOTES')}
-                    >
-                      노트
-                    </RailTab>
-                  </RailTabs>
-
-                  <AIButton onClick={() => alert('AI 기능 연결 예정')}>AI</AIButton>
+                  <IconButton
+                    active={rightTab === "MODEL"}
+                    onClick={() => handleClickTab("MODEL")}
+                  >
+                    모델
+                  </IconButton>
+                  <IconButton
+                    active={rightTab === "PARTS"}
+                    onClick={() => handleClickTab("PARTS")}
+                  >
+                    부품
+                  </IconButton>
+                  <IconButton
+                    active={rightTab === "NOTES"}
+                    onClick={() => handleClickTab("NOTES")}
+                  >
+                    노트
+                  </IconButton>
+                  <IconButton
+                    style={{ marginTop: "8px", border: "1.5px solid #2F54EB" }}
+                    onClick={() => alert("AI 기능 실행")}
+                  >
+                    AI
+                  </IconButton>
                 </RightRail>
 
                 {/* 하단 슬라이더 */}
@@ -203,8 +251,10 @@ export default function StudyMain() {
                     min={0}
                     max={1}
                     step={0.01}
-                    value={explode}
-                    onChange={(e) => setExplode(Number(e.target.value))}
+                    value={currentExplode}
+                    onChange={(e) =>
+                      handleExplodeChange(Number(e.target.value))
+                    }
                   />
                 </ExplodeBox>
               </UILayer>

@@ -9,34 +9,28 @@ type Props = ThreeElements["group"] & {
 };
 
 export default function DroneModel({ explode = 0, ...props }: Props) {
-  const { scene } = useGLTF("/src/assets/example/Drone.glb");
+  const { scene } = useGLTF("/src/assets/example/Suspension.glb");
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
   const [hoveredName, setHoveredName] = useState<string | null>(null);
 
-  const EX_FACTOR = 7; // 드론 분해 배수
+  const EX_FACTOR = 7; //  분해 배수
 
   // 방향 계산
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3(0, 0, 0);
 
-    if (name.includes("Leg")) {
-      dir.set(0, -1, 0);
-    } else if (name.includes("Beater")) {
-      dir.set(0, 0, 1);
-    } else if (name.includes("Impellar")) {
-      dir.set(0, 1, 0);
-    } else if (name.includes("Nut") || name.includes("Gearing")) {
-      dir.set(0, 0.75, 0);
-    } else if (name.includes("Arm")) {
-      dir.set(name.includes("_1") || name.includes("_3") ? -0.5 : 0.5, 0, 0);
-    } else if (name.includes("Main")) {
-      dir.set(0, name.includes("001") ? -0.35 : 0.35, 0);
-    } else if (name.includes("Screw")) {
-      dir.set(0, -0.5, 0);
-    } else if (name.includes("Bearing")) {
-      dir.set(0, 0, 1);
+    if (name.includes("Nit")) {
+      dir.set(0, -1.2, 0);
+    } else if (name.includes("Nut")) {
+      dir.set(0, 1.9, 0);
+    } else if (name.includes("Spring")) {
+      dir.set(0, 0.6, 0);
+    } else if (name.includes("Rod")) {
+      dir.set(0, 0.9, 0);
+    } else if (name.includes("Base")) {
+      dir.set(0, -0.7, 0);
     }
     return dir;
   };
@@ -95,4 +89,4 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   );
 }
 
-useGLTF.preload("/src/assets/example/Drone.glb");
+useGLTF.preload("/src/assets/example/Suspension.glb");
