@@ -1,20 +1,4 @@
-import styled, { createGlobalStyle } from 'styled-components';
-
-/*  Global Reset */
-export const GlobalStyle = createGlobalStyle`
-  * {
-    box-sizing: border-box;
-  }
-
-  html, body, #root {
-    width: 100%;
-    height: 100%;
-    margin: 0;         
-    padding: 0;
-    overflow: hidden; 
-    background: #050505;
-  }
-`;
+import styled from 'styled-components';
 
 /* Root */
 export const Container = styled.div`

@@ -5,7 +5,6 @@ import DroneModel from './components/DroneModel';
 import Header from '../../components/Header';
 
 import {
-  GlobalStyle,
   Container,
   Main,
   ViewportFrame,
@@ -93,9 +92,6 @@ export default function StudyMain() {
 
   return (
     <>
-      {/* 여백 제거 전역 스타일 */}
-      <GlobalStyle />
-
       <Container>
         <Header />
 
