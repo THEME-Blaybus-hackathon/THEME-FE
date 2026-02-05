@@ -22,10 +22,11 @@ export const Content = styled.main`
 export const Title = styled.h1`
   color: white;
   font-size: 36px;
+  color: ${({ theme }) => theme.colors.primary};
 `;
 
 export const Explan = styled.p`
-  color: ${({ theme }) => theme.colors.subprimary};
+  color: white;
   font-size: 18px;
   line-height: 1.5;
   max-width: 400px;
