@@ -53,7 +53,16 @@ export const StudyButton = styled.div`
 
   cursor: pointer;
 
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+
   &:hover {
-    background-color: ${({ theme }) => theme.colors.primary};
+    transform: translateY(-4px) scale(1.1);
+    opacity: 0.95;
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(1.02);
   }
 `;
