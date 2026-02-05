@@ -1,20 +1,4 @@
-import styled, { createGlobalStyle } from "styled-components";
-
-/*  Global Reset */
-export const GlobalStyle = createGlobalStyle`
-  * {
-    box-sizing: border-box;
-  }
-
-  html, body, #root {
-    width: 100%;
-    height: 100%;
-    margin: 0;         
-    padding: 0;
-    overflow: hidden; 
-    background: #050505;
-  }
-`;
+import styled from 'styled-components';
 
 /* Root */
 export const Container = styled.div`
@@ -35,50 +19,6 @@ export const Container = styled.div`
     Roboto,
     sans-serif;
   color: rgba(255, 255, 255, 0.92);
-`;
-
-/*  Header */
-export const Header = styled.header`
-  height: 84px;
-  flex: 0 0 auto;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 34px;
-
-  background: rgba(11, 11, 11, 0.96);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-`;
-
-export const HeaderTitle = styled.div`
-  font-weight: 900;
-  font-size: 26px;
-  letter-spacing: 0.5px;
-  color: #ffffff;
-`;
-
-export const Nav = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 34px;
-
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-export const NavItem = styled.span<{ active?: boolean }>`
-  cursor: pointer;
-  font-weight: 800;
-  transition: all 160ms ease;
-
-  color: ${({ active }) => (active ? "#ffffff" : "rgba(255,255,255,0.86)")};
-
-  &:hover {
-    color: rgba(160, 255, 245, 0.95);
-    transform: translateY(-1px);
-  }
 `;
 
 export const LogoutButton = styled.button`
@@ -342,8 +282,8 @@ export const IconButton = styled.button<{ active?: boolean }>`
   position: relative;
   z-index: 11;
 
-  background: ${({ active }) => (active ? "#326666" : "#FFFFFF")};
-  color: ${({ active }) => (active ? "#FFFFFF" : "#444444")};
+  background: ${({ active }) => (active ? '#326666' : '#FFFFFF')};
+  color: ${({ active }) => (active ? '#FFFFFF' : '#444444')};
 
   font-size: 14px;
   font-weight: 800;
@@ -356,7 +296,7 @@ export const IconButton = styled.button<{ active?: boolean }>`
   `}
 
   &:hover {
-    ${({ active }) => !active && "background: #F5F5F5; transform: scale(1.05);"}
+    ${({ active }) => !active && 'background: #F5F5F5; transform: scale(1.05);'}
   }
 `;
 
@@ -513,7 +453,7 @@ export const ExplodeBox = styled.div`
   }
 `;
 
-export const Slider = styled.input.attrs({ type: "range" })`
+export const Slider = styled.input.attrs({ type: 'range' })`
   width: 320px;
   -webkit-appearance: none;
   appearance: none;
