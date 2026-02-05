@@ -8,17 +8,24 @@ export const Wrapper = styled.div`
 
 export const GlassCard = styled.div`
   position: relative;
-  width: 360px;
-  height: 460px;
+  width: 400px;
+  height: 450px;
   overflow: hidden;
+
+  background: linear-gradient(
+    10deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.05)
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
   border-radius: 28px;
 
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 20px 40px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.35);
 `;
 
 export const ImageTrack = styled.div<{ currentIndex: number }>`
