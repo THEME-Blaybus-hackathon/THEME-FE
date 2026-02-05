@@ -13,7 +13,7 @@ export default function Study() {
   const navigate = useNavigate();
 
   const handleSelectModel = (model: string) => {
-    navigate('/study/main', {
+    navigate('/study-main', {
       state: { model },
     });
   };

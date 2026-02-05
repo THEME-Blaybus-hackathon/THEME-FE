@@ -6,6 +6,7 @@ import RobotArmModel from './components/RobotArmModel';
 import RobotGripperModel from './components/RobotGripperModel';
 import SuspensionModel from './components/SuspensionModel';
 import Header from '../../components/Header';
+import { useLocation } from 'react-router-dom';
 
 import {
   Container,
@@ -72,17 +73,20 @@ function XGuide({
 }
 
 export default function StudyMain() {
+  const location = useLocation();
+  const initialModel = (location.state as { model?: string })?.model ?? 'Drone';
   const [explodes, setExplodes] = useState<Record<string, number>>({
     Drone: 0,
     Arm: 0,
     Gripper: 0,
     Suspension: 0,
   });
+  const [selectedModel, setSelectedModel] = useState(initialModel);
 
   const [rightTab, setRightTab] = useState<'MODEL' | 'PARTS' | 'NOTES' | null>(
     'MODEL',
   );
-  const [selectedModel, setSelectedModel] = useState('Drone');
+
   const [panelOpen, setPanelOpen] = useState(true);
 
   // 현재 선택된 모델의 explode 값
