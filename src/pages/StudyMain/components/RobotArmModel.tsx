@@ -8,35 +8,29 @@ type Props = ThreeElements["group"] & {
   explode?: number;
 };
 
-export default function DroneModel({ explode = 0, ...props }: Props) {
-  const { scene } = useGLTF("/src/assets/example/Drone.glb");
+export default function RobotArmModel({ explode = 0, ...props }: Props) {
+  const { scene } = useGLTF("/src/assets/example/RobotArm.glb");
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
   const [hoveredName, setHoveredName] = useState<string | null>(null);
-
-  const EX_FACTOR = 7; // 드론 분해 배수
+  const EX_FACTOR = 10; // 분해 배수
 
   // 방향 계산
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3(0, 0, 0);
+    const id = name.split("_")[0];
+    const num = parseInt(id.replace(/\D/g, ""), 10);
 
-    if (name.includes("Leg")) {
-      dir.set(0, -1, 0);
-    } else if (name.includes("Beater")) {
-      dir.set(0, 0, 1);
-    } else if (name.includes("Impellar")) {
-      dir.set(0, 1, 0);
-    } else if (name.includes("Nut") || name.includes("Gearing")) {
-      dir.set(0, 0.75, 0);
-    } else if (name.includes("Arm")) {
-      dir.set(name.includes("_1") || name.includes("_3") ? -0.5 : 0.5, 0, 0);
-    } else if (name.includes("Main")) {
-      dir.set(0, name.includes("001") ? -0.35 : 0.35, 0);
-    } else if (name.includes("Screw")) {
-      dir.set(0, -0.5, 0);
-    } else if (name.includes("Bearing")) {
-      dir.set(0, 0, 1);
+    if (name.includes("Solid") && num >= 1000) {
+      const step = num - 1000;
+      const intensity = 0.6 * Math.pow(0.9, step);
+
+      dir.set(
+        num % 2 ? intensity : -intensity,
+        num > 1006 ? -0.5 : 0,
+        num > 1006 ? 0 : -intensity,
+      );
     }
     return dir;
   };
@@ -46,6 +40,7 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
       if (!obj.name || initialPosRef.current[obj.name]) return;
 
       partsRef.current[obj.name] = obj;
+
       const dir = getDir(obj.name);
       const basePos = obj.position
         .clone()
@@ -65,13 +60,14 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
       const dir = getDir(name);
       const target = base.clone().add(dir.multiplyScalar(explode * EX_FACTOR));
 
-      obj.position.lerp(target, 0.1);
+      obj.position.lerp(target, 0.05);
 
       if (obj instanceof THREE.Mesh) {
-        const isHit = !!hoverId && name.startsWith(hoverId);
-
+        const thisId = name.split("_")[0];
+        const isHit = !!hoverId && thisId === hoverId;
         const mat = obj.material as THREE.MeshStandardMaterial;
-        if (mat.emissive) {
+
+        if (mat && mat.emissive) {
           mat.emissive.set(isHit ? "#00888d" : "#000000");
           mat.emissiveIntensity = isHit ? 3 : 0;
           mat.transparent = true;
@@ -95,4 +91,4 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   );
 }
 
-useGLTF.preload("/src/assets/example/Drone.glb");
+useGLTF.preload("/src/assets/example/RobotArm.glb");
