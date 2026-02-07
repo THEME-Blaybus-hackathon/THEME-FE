@@ -1,5 +1,5 @@
-// components/panels/drone/DroneNotesPanel.tsx
+import GenericNotesPanel from "../GenericNotesPanel";
+
 export default function DroneNotesPanel() {
-    return <textarea placeholder="Drone 노트 작성..." />;
-  }
-  
+  return <GenericNotesPanel partName="Drone" />;
+}

@@ -1,5 +1,5 @@
-// GripperNotesPanel.tsx
+import GenericNotesPanel from "../GenericNotesPanel";
+
 export default function GripperNotesPanel() {
-    return <p>파지력 테스트 메모</p>;
-  }
-  
+  return <GenericNotesPanel partName="Gripper" />;
+}
