@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-import type { ThreeElements, ThreeEvent } from "@react-three/fiber";
+import { useEffect, useRef, useState } from 'react';
+import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import type { ThreeElements, ThreeEvent } from '@react-three/fiber';
 
-type Props = ThreeElements["group"] & {
+type Props = ThreeElements['group'] & {
   explode?: number;
 };
 
 export default function DroneModel({ explode = 0, ...props }: Props) {
-  const { scene } = useGLTF("/src/assets/example/Drone.glb");
+  const { scene } = useGLTF('/assets/models/Drone.glb');
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
@@ -21,21 +21,21 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3(0, 0, 0);
 
-    if (name.includes("Leg")) {
+    if (name.includes('Leg')) {
       dir.set(0, -1, 0);
-    } else if (name.includes("Beater")) {
+    } else if (name.includes('Beater')) {
       dir.set(0, 0, 1);
-    } else if (name.includes("Impellar")) {
+    } else if (name.includes('Impellar')) {
       dir.set(0, 1, 0);
-    } else if (name.includes("Nut") || name.includes("Gearing")) {
+    } else if (name.includes('Nut') || name.includes('Gearing')) {
       dir.set(0, 0.75, 0);
-    } else if (name.includes("Arm")) {
-      dir.set(name.includes("_1") || name.includes("_3") ? -0.5 : 0.5, 0, 0);
-    } else if (name.includes("Main")) {
-      dir.set(0, name.includes("001") ? -0.35 : 0.35, 0);
-    } else if (name.includes("Screw")) {
+    } else if (name.includes('Arm')) {
+      dir.set(name.includes('_1') || name.includes('_3') ? -0.5 : 0.5, 0, 0);
+    } else if (name.includes('Main')) {
+      dir.set(0, name.includes('001') ? -0.35 : 0.35, 0);
+    } else if (name.includes('Screw')) {
       dir.set(0, -0.5, 0);
-    } else if (name.includes("Bearing")) {
+    } else if (name.includes('Bearing')) {
       dir.set(0, 0, 1);
     }
     return dir;
@@ -56,7 +56,7 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   }, [scene]);
 
   useFrame(() => {
-    const hoverId = hoveredName?.split("_")[0];
+    const hoverId = hoveredName?.split('_')[0];
 
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
@@ -72,7 +72,7 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
 
         const mat = obj.material as THREE.MeshStandardMaterial;
         if (mat.emissive) {
-          mat.emissive.set(isHit ? "#00888d" : "#000000");
+          mat.emissive.set(isHit ? '#00888d' : '#000000');
           mat.emissiveIntensity = isHit ? 3 : 0;
           mat.transparent = true;
           mat.opacity = isHit ? 0.6 : 1.0;
@@ -95,4 +95,4 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   );
 }
 
-useGLTF.preload("/src/assets/example/Drone.glb");
+useGLTF.preload('/assets/models/Drone.glb');

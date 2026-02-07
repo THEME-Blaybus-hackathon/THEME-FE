@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-import type { ThreeElements, ThreeEvent } from "@react-three/fiber";
+import { useEffect, useRef, useState } from 'react';
+import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import type { ThreeElements, ThreeEvent } from '@react-three/fiber';
 
-type Props = ThreeElements["group"] & {
+type Props = ThreeElements['group'] & {
   explode?: number;
 };
 
 export default function RobotArmModel({ explode = 0, ...props }: Props) {
-  const { scene } = useGLTF("/src/assets/example/RobotArm.glb");
+  const { scene } = useGLTF('/assets/models/RobotArm.glb');
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
@@ -19,10 +19,10 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
   // 방향 계산
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3(0, 0, 0);
-    const id = name.split("_")[0];
-    const num = parseInt(id.replace(/\D/g, ""), 10);
+    const id = name.split('_')[0];
+    const num = parseInt(id.replace(/\D/g, ''), 10);
 
-    if (name.includes("Solid") && num >= 1000) {
+    if (name.includes('Solid') && num >= 1000) {
       const step = num - 1000;
       const intensity = 0.6 * Math.pow(0.9, step);
 
@@ -51,7 +51,7 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
   }, [scene]);
 
   useFrame(() => {
-    const hoverId = hoveredName?.split("_")[0];
+    const hoverId = hoveredName?.split('_')[0];
 
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
@@ -63,12 +63,12 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
       obj.position.lerp(target, 0.05);
 
       if (obj instanceof THREE.Mesh) {
-        const thisId = name.split("_")[0];
+        const thisId = name.split('_')[0];
         const isHit = !!hoverId && thisId === hoverId;
         const mat = obj.material as THREE.MeshStandardMaterial;
 
         if (mat && mat.emissive) {
-          mat.emissive.set(isHit ? "#00888d" : "#000000");
+          mat.emissive.set(isHit ? '#00888d' : '#000000');
           mat.emissiveIntensity = isHit ? 3 : 0;
           mat.transparent = true;
           mat.opacity = isHit ? 0.6 : 1.0;
@@ -91,4 +91,4 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
   );
 }
 
-useGLTF.preload("/src/assets/example/RobotArm.glb");
+useGLTF.preload('/assets/models/RobotArm.glb');

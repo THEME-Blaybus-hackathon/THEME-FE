@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-import type { ThreeElements, ThreeEvent } from "@react-three/fiber";
+import { useEffect, useRef, useState } from 'react';
+import { useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
+import type { ThreeElements, ThreeEvent } from '@react-three/fiber';
 
-type Props = ThreeElements["group"] & {
+type Props = ThreeElements['group'] & {
   explode?: number;
 };
 
 export default function DroneModel({ explode = 0, ...props }: Props) {
-  const { scene } = useGLTF("/src/assets/example/Suspension.glb");
+  const { scene } = useGLTF('/assets/models/Suspension.glb');
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
@@ -21,15 +21,15 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3(0, 0, 0);
 
-    if (name.includes("Nit")) {
+    if (name.includes('Nit')) {
       dir.set(0, -1.2, 0);
-    } else if (name.includes("Nut")) {
+    } else if (name.includes('Nut')) {
       dir.set(0, 1.9, 0);
-    } else if (name.includes("Spring")) {
+    } else if (name.includes('Spring')) {
       dir.set(0, 0.6, 0);
-    } else if (name.includes("Rod")) {
+    } else if (name.includes('Rod')) {
       dir.set(0, 0.9, 0);
-    } else if (name.includes("Base")) {
+    } else if (name.includes('Base')) {
       dir.set(0, -0.7, 0);
     }
     return dir;
@@ -50,7 +50,7 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   }, [scene]);
 
   useFrame(() => {
-    const hoverId = hoveredName?.split("_")[0];
+    const hoverId = hoveredName?.split('_')[0];
 
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
@@ -66,7 +66,7 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
 
         const mat = obj.material as THREE.MeshStandardMaterial;
         if (mat.emissive) {
-          mat.emissive.set(isHit ? "#00888d" : "#000000");
+          mat.emissive.set(isHit ? '#00888d' : '#000000');
           mat.emissiveIntensity = isHit ? 3 : 0;
           mat.transparent = true;
           mat.opacity = isHit ? 0.6 : 1.0;
@@ -89,4 +89,4 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
   );
 }
 
-useGLTF.preload("/src/assets/example/Suspension.glb");
+useGLTF.preload('/assets/models/Suspension.glb');
