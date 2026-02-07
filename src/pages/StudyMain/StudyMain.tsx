@@ -10,12 +10,42 @@ import SuspensionModel from './components/models/SuspensionModel';
 
 import Header from '../../components/Header';
 
-
 import BlueInfoPanel from './components/panels/BlueInfoPanel';
 import { PANEL_MAP } from './components/panelMap';
 
 import type { ModelType, PanelTab } from '../../types/model';
+import { useObjectCategories } from '../../api/model/queries';
+import { CATEGORY_MAP } from './constants/categoryMap';
+import ModelSelectSkeleton from './components/ModelSelectSkeleton';
 
+type ModelRenderConfig = {
+  Component: React.FC<{ explode: number }>;
+  scale: [number, number, number];
+  explodeKey: ModelType;
+};
+
+const MODEL_RENDER_MAP: Record<ModelType, ModelRenderConfig> = {
+  Drone: {
+    Component: DroneModel,
+    scale: [1.2, 1.2, 1.2],
+    explodeKey: 'Drone',
+  },
+  Arm: {
+    Component: RobotArmModel,
+    scale: [0.35, 0.35, 0.35],
+    explodeKey: 'Arm',
+  },
+  Gripper: {
+    Component: RobotGripperModel,
+    scale: [1.3, 1.3, 1.3],
+    explodeKey: 'Gripper',
+  },
+  Suspension: {
+    Component: SuspensionModel,
+    scale: [1.2, 1.2, 1.2],
+    explodeKey: 'Suspension',
+  },
+};
 
 import {
   Container,
@@ -73,10 +103,11 @@ function XGuide({
 
 export default function StudyMain() {
   const location = useLocation();
-  const initialModel =
-    (location.state as { model?: string })?.model ?? 'Drone';
+  const initialModel = (location.state as { model?: string })?.model ?? 'Drone';
 
-  const [selectedModel, setSelectedModel] = useState<ModelType>(initialModel as ModelType);
+  const [selectedModel, setSelectedModel] = useState<ModelType>(
+    initialModel as ModelType,
+  );
   const [rightTab, setRightTab] = useState<PanelTab | null>('MODEL');
   const [panelOpen, setPanelOpen] = useState(true);
 
@@ -104,8 +135,7 @@ export default function StudyMain() {
   };
 
   /** ✅ 모델 + 탭에 따른 패널 콘텐츠 결정 */
-  const PanelContent =
-    rightTab && PANEL_MAP[selectedModel]?.[rightTab];
+  const PanelContent = rightTab && PANEL_MAP[selectedModel]?.[rightTab];
 
   /** ✅ 탭 타이틀 */
   const getPanelTitle = () => {
@@ -113,6 +143,8 @@ export default function StudyMain() {
     if (rightTab === 'PARTS') return 'PARTS';
     return 'NOTES';
   };
+
+  const { data: categoryData, isLoading, isError } = useObjectCategories();
 
   return (
     <Container>
@@ -131,30 +163,18 @@ export default function StudyMain() {
                   <group position={[0, -0.25, 0]}>
                     <XGuide size={140} opacity={0.32} />
                   </group>
+                  {(() => {
+                    const config = MODEL_RENDER_MAP[selectedModel];
+                    if (!config) return null;
 
-                  {selectedModel === 'Drone' && (
-                    <group scale={[1.2, 1.2, 1.2]}>
-                      <DroneModel explode={explodes.Drone} />
-                    </group>
-                  )}
+                    const { Component, scale, explodeKey } = config;
 
-                  {selectedModel === 'Arm' && (
-                    <group scale={[0.35, 0.35, 0.35]}>
-                      <RobotArmModel explode={explodes.Arm} />
-                    </group>
-                  )}
-
-                  {selectedModel === 'Gripper' && (
-                    <group scale={[1.3, 1.3, 1.3]}>
-                      <RobotGripperModel explode={explodes.Gripper} />
-                    </group>
-                  )}
-
-                  {selectedModel === 'Suspension' && (
-                    <group scale={[1.2, 1.2, 1.2]}>
-                      <SuspensionModel explode={explodes.Suspension} />
-                    </group>
-                  )}
+                    return (
+                      <group scale={scale}>
+                        <Component explode={explodes[explodeKey] ?? 0} />
+                      </group>
+                    );
+                  })()}
                 </group>
 
                 <OrbitControls
@@ -173,16 +193,33 @@ export default function StudyMain() {
             <UILayer>
               {/* 좌측 상단 */}
               <LeftControls>
-                <ModelSelect
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value as ModelType)}
-                >
-                  <option value="Drone">Drone</option>
-                  <option value="Arm">Arm</option>
-                  <option value="Gripper">Gripper</option>
-                  <option value="Suspension">Suspension</option>
-                </ModelSelect>
+                {isLoading && <ModelSelectSkeleton />}
+                {isError && (
+                  <ModelSelect disabled>
+                    <option>모델 로딩 실패</option>
+                  </ModelSelect>
+                )}
 
+                {!isLoading && !isError && categoryData && (
+                  <ModelSelect
+                    value={selectedModel}
+                    onChange={(e) =>
+                      setSelectedModel(e.target.value as ModelType)
+                    }
+                  >
+                    {categoryData.categories.map((category) => {
+                      const meta =
+                        CATEGORY_MAP[category as keyof typeof CATEGORY_MAP];
+                      if (!meta) return null;
+
+                      return (
+                        <option key={category} value={meta.model}>
+                          {meta.model}
+                        </option>
+                      );
+                    })}
+                  </ModelSelect>
+                )}
                 <DownloadButton title="download">⬇</DownloadButton>
               </LeftControls>
 
@@ -232,9 +269,7 @@ export default function StudyMain() {
                   max={1}
                   step={0.01}
                   value={currentExplode}
-                  onChange={(e) =>
-                    handleExplodeChange(Number(e.target.value))
-                  }
+                  onChange={(e) => handleExplodeChange(Number(e.target.value))}
                 />
               </ExplodeBox>
             </UILayer>
