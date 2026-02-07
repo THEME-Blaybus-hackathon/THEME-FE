@@ -16,6 +16,7 @@ import { PANEL_MAP } from './components/panelMap';
 import type { ModelType, PanelTab } from '../../types/model';
 import { useObjectCategories } from '../../api/model/queries';
 import { CATEGORY_MAP } from './constants/categoryMap';
+import ModelSelectSkeleton from './components/ModelSelectSkeleton';
 
 type ModelRenderConfig = {
   Component: React.FC<{ explode: number }>;
@@ -192,23 +193,33 @@ export default function StudyMain() {
             <UILayer>
               {/* 좌측 상단 */}
               <LeftControls>
-                <ModelSelect
-                  value={selectedModel}
-                  onChange={(e) =>
-                    setSelectedModel(e.target.value as ModelType)
-                  }
-                >
-                  {categoryData.categories.map((category) => {
-                    const meta = CATEGORY_MAP[category];
-                    if (!meta) return null;
+                {isLoading && <ModelSelectSkeleton />}
+                {isError && (
+                  <ModelSelect disabled>
+                    <option>모델 로딩 실패</option>
+                  </ModelSelect>
+                )}
 
-                    return (
-                      <option key={category} value={meta.model}>
-                        {meta.model}
-                      </option>
-                    );
-                  })}
-                </ModelSelect>
+                {!isLoading && !isError && categoryData && (
+                  <ModelSelect
+                    value={selectedModel}
+                    onChange={(e) =>
+                      setSelectedModel(e.target.value as ModelType)
+                    }
+                  >
+                    {categoryData.categories.map((category) => {
+                      const meta =
+                        CATEGORY_MAP[category as keyof typeof CATEGORY_MAP];
+                      if (!meta) return null;
+
+                      return (
+                        <option key={category} value={meta.model}>
+                          {meta.model}
+                        </option>
+                      );
+                    })}
+                  </ModelSelect>
+                )}
                 <DownloadButton title="download">⬇</DownloadButton>
               </LeftControls>
 
