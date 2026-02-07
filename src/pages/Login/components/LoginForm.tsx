@@ -7,7 +7,7 @@ import {
 } from './LoginForm.style';
 import kakaoLogo from '@/assets/images/KakaoLogo.png';
 import naverLogo from '@/assets/images/NaverLogo.png';
-import googleLogo from '@/assets/images/googleLogo.png';
+import googleLogo from '@/assets/images/GoogleLogo.png';
 
 export default function LoginForm() {
   return (
