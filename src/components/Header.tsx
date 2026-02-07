@@ -11,9 +11,19 @@ import {
 import Logo from '/src/assets/images/Logo.svg';
 import Logo2 from '/src/assets/images/Logo2.svg';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function Header() {
   const navigate = useNavigate();
+
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <HeaderWrapper>
       <Left>
@@ -33,7 +43,11 @@ export default function Header() {
       </Center>
 
       <Right>
-        <LogoutButton onClick={() => navigate('/login')}>로그인</LogoutButton>
+        {isAuthenticated ? (
+          <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
+        ) : (
+          <LogoutButton onClick={() => navigate('/login')}>로그인</LogoutButton>
+        )}
       </Right>
     </HeaderWrapper>
   );
