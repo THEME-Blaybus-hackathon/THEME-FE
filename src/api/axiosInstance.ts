@@ -1,10 +1,10 @@
-import axios from "axios";
+import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 
   withCredentials: false,
@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const storedAuth = sessionStorage.getItem("auth-storage");
+    const storedAuth = sessionStorage.getItem('auth-storage');
 
     if (storedAuth) {
       try {
@@ -23,7 +23,7 @@ axiosInstance.interceptors.request.use(
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
       } catch (e) {
-        console.error("Failed to parse auth-storage", e);
+        console.error('Failed to parse auth-storage', e);
       }
     }
 
