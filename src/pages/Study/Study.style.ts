@@ -10,12 +10,19 @@ export const PageWrapper = styled.div`
 
 export const CardWrapper = styled.div`
   flex: 1;
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 300px);
+  height: calc(100vh - 220px);
+  overflow-y: auto;
+  padding-right: 8px;
+  scroll-behavior: smooth;
+  scroll-behavior: smooth;
+  white-space: nowrap;
   justify-content: center;
   align-items: center;
   gap: 5vw;
-
+  width: 90%;
+  align-self: center;
   padding: ${({ theme }) => theme.spacing.lg};
 `;
 

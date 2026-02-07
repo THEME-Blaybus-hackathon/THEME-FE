@@ -2,9 +2,13 @@ import styled from 'styled-components';
 
 export const Card = styled.div`
   position: relative;
-  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 280px;
   height: 220px;
   padding: 16px;
+  flex-shrink: 0;
 
   border-radius: 16px;
   cursor: pointer;
