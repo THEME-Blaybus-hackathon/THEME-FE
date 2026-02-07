@@ -1,3 +1,4 @@
+//StudyMain.tsx
 import { useState, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Line } from '@react-three/drei';
@@ -60,9 +61,10 @@ import {
   IconButton,
   ModelSelect,
   DownloadButton,
-  RightRail,
   ExplodeBox,
   Slider,
+  RightBottomRail,
+  TopRail,
 } from './StudyMain.style';
 
 type GridGuideProps = {
@@ -208,7 +210,6 @@ export default function StudyMain() {
                     })}
                   </ModelSelect>
                 )}
-                <DownloadButton title="download">⬇</DownloadButton>
               </LeftControls>
 
               {/* ===== 오른쪽 패널 (컴포넌트화 완료) ===== */}
@@ -222,8 +223,8 @@ export default function StudyMain() {
                 </BlueInfoPanel>
               )}
 
-              {/* 오른쪽 레일 */}
-              <RightRail>
+              {/* 위쪽 레일 */}
+              <TopRail>
                 <IconButton
                   active={rightTab === 'MODEL'}
                   onClick={() => handleClickTab('MODEL')}
@@ -242,13 +243,16 @@ export default function StudyMain() {
                 >
                   노트
                 </IconButton>
+                
+              </TopRail>
+              <RightBottomRail>
                 <IconButton
                   style={{ marginTop: '8px', border: '1.5px solid #2F54EB' }}
                   onClick={() => alert('AI 기능 실행')}
                 >
                   AI
                 </IconButton>
-              </RightRail>
+              </RightBottomRail>
 
               {/* 하단 슬라이더 */}
               <ExplodeBox>

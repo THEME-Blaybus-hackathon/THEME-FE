@@ -8,7 +8,11 @@ export const HeaderWrapper = styled.header`
   align-items: center;
   justify-content: space-between;
 
-  background-color: transparent;
+  background-color: rgba(18, 26, 40, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(120, 160, 220, 0.18);
 `;
 
 export const Left = styled.div`
@@ -23,6 +27,7 @@ export const LogoGroup = styled.div`
 
   img {
     height: 45px;
+    filter: drop-shadow(0 2px 6px rgba(90, 140, 220, 0.25));
   }
 `;
 
@@ -63,7 +68,7 @@ export const NavItem = styled.button`
   background: none;
   border: none;
 
-  color: white;
+  color: rgba(225, 235, 255, 0.9);
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -72,11 +77,13 @@ export const NavItem = styled.button`
 
   transition:
     transform 0.25s ease,
-    opacity 0.25s ease;
+    opacity 0.25s ease,
+    color 0.25s ease;
 
   &:hover {
     transform: translateY(-4px) scale(1.1);
     opacity: 0.95;
+    color: rgba(140, 180, 255, 1);
   }
 
   &:active {
@@ -92,22 +99,28 @@ export const Right = styled.div`
 export const LogoutButton = styled.button`
   padding: 8px 16px;
 
-  border-radius: 8px;
-  border: none;
+  border-radius: 10px;
+  border: 1px solid rgba(90, 140, 220, 0.45);
 
-  background-color: ${({ theme }) => theme.colors.primarylight};
-  color: white;
+  background: rgba(90, 140, 220, 0.22);
+  color: rgba(235, 242, 255, 0.95);
+
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
   transition:
     transform 0.25s ease,
-    opacity 0.25s ease;
+    opacity 0.25s ease,
+    background 0.25s ease;
 
   &:hover {
     transform: translateY(-4px) scale(1.1);
     opacity: 0.95;
+    background: rgba(90, 140, 220, 0.35);
   }
 
   &:active {
