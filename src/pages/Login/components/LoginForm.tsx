@@ -5,9 +5,9 @@ import {
   NaverButton,
   GoogleButton,
 } from './LoginForm.style';
-import kakaoLogo from '/src/assets/images/KakaoLogo.png';
-import naverLogo from '/src/assets/images/NaverLogo.png';
-import googleLogo from '/src/assets/images/googleLogo.png';
+import kakaoLogo from '@/assets/images/KakaoLogo.png';
+import naverLogo from '@/assets/images/NaverLogo.png';
+import googleLogo from '@/assets/images/googleLogo.png';
 
 export default function LoginForm() {
   return (
