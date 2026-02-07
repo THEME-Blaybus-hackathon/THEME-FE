@@ -12,16 +12,25 @@ import Logo from '/src/assets/images/Logo.svg';
 import Logo2 from '/src/assets/images/Logo2.svg';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import { useLogoutMutation } from '../api/auth/mutations';
 
 export default function Header() {
   const navigate = useNavigate();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const logout = useAuthStore((state) => state.logout);
-
+  const { mutate: logoutMutate, isPending } = useLogoutMutation();
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    const confirmed = window.confirm('정말 로그아웃하시겠어요?');
+    if (!confirmed) return;
+
+    logoutMutate(undefined, {
+      onSuccess: () => {
+        navigate('/');
+      },
+      onError: () => {
+        alert('로그아웃에 실패했어요.');
+      },
+    });
   };
 
   return (
@@ -44,7 +53,9 @@ export default function Header() {
 
       <Right>
         {isAuthenticated ? (
-          <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
+          <LogoutButton onClick={handleLogout} disabled={isPending}>
+            로그아웃
+          </LogoutButton>
         ) : (
           <LogoutButton onClick={() => navigate('/login')}>로그인</LogoutButton>
         )}

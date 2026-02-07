@@ -46,16 +46,29 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
 
     return dir;
   };
-
   useEffect(() => {
+    const names: string[] = [];
+
     scene.traverse((obj) => {
       if (!obj.name || initialPosRef.current[obj.name]) return;
+
+      // 🔹 부품 이름 수집
+      if (obj instanceof THREE.Mesh) {
+        names.push(obj.name);
+      }
+
       partsRef.current[obj.name] = obj;
+
       const dir = getDir(obj.name);
-      initialPosRef.current[obj.name] = obj.position
+      const basePos = obj.position
         .clone()
         .sub(dir.multiplyScalar(explode * EX_FACTOR));
+      initialPosRef.current[obj.name] = basePos;
     });
+
+    // ⭐⭐⭐ 여기다 콘솔 찍기 ⭐⭐⭐
+    console.log('🧩 RobotArm GLB Mesh Parts:', names);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 

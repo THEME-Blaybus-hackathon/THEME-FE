@@ -17,3 +17,7 @@ export function startSocialLogin(
 
   window.location.href = url;
 }
+
+export async function postLogout(): Promise<void> {
+  await axiosInstance.post('/api/auth/logout');
+}

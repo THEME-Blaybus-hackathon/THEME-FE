@@ -10,9 +10,11 @@ import {
   TextContent,
   StudyButton,
 } from './Home.style';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const login = useAuthStore((state) => state.login);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -34,7 +36,9 @@ export default function Home() {
         <TextContent>
           <Title>랜딩 페이지 소개 문구</Title>
           <Explan>랜딩 페이지 소개 세부 설명</Explan>
-          <StudyButton>스터디 시작하기</StudyButton>
+          <StudyButton onClick={() => navigate('/study')}>
+            스터디 시작하기
+          </StudyButton>
         </TextContent>
 
         <ImageRotate />
