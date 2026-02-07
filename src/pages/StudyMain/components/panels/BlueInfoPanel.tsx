@@ -19,7 +19,7 @@ export default function BlueInfoPanel({ title, children, onClose }: Props) {
   return (
     <Wrapper>
       <PanelHeader>
-        <span>DRO-1224</span>
+        <span></span>
         <CloseButton onClick={onClose}>×</CloseButton>
       </PanelHeader>
 
