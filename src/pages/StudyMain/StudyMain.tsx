@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Line } from '@react-three/drei';
 import { useLocation } from 'react-router-dom';
+import { GridHelper } from 'three';
+import * as THREE from 'three';
 
 import DroneModel from './components/models/DroneModel';
 import RobotArmModel from './components/models/RobotArmModel';
@@ -63,42 +65,28 @@ import {
   Slider,
 } from './StudyMain.style';
 
-/** 3D 씬 안에서 회전하는 X 가이드 */
-function XGuide({
-  size = 120,
-  opacity = 0.28,
-  lineWidth = 1.2,
-}: {
+type GridGuideProps = {
   size?: number;
+  divisions?: number;
   opacity?: number;
-  lineWidth?: number;
-}) {
-  const half = size / 2;
+};
 
-  return (
-    <group>
-      <Line
-        points={[
-          [-half, 0, -half],
-          [half, 0, half],
-        ]}
-        color="#ffffff"
-        lineWidth={lineWidth}
-        transparent
-        opacity={opacity}
-      />
-      <Line
-        points={[
-          [-half, 0, half],
-          [half, 0, -half],
-        ]}
-        color="#ffffff"
-        lineWidth={lineWidth}
-        transparent
-        opacity={opacity}
-      />
-    </group>
-  );
+export function GridGuide({
+  size = 120,
+  divisions = 24, // 촘촘함 조절
+  opacity = 0.25,
+}: GridGuideProps) {
+  const grid = useMemo(() => {
+    const helper = new GridHelper(size, divisions, '#ffffff', '#ffffff');
+
+    const mat = helper.material as THREE.LineBasicMaterial;
+    mat.transparent = true;
+    mat.opacity = opacity;
+
+    return helper;
+  }, [size, divisions, opacity]);
+
+  return <primitive object={grid} />;
 }
 
 export default function StudyMain() {
@@ -161,7 +149,7 @@ export default function StudyMain() {
 
                 <group position={[0, -7.5, 0]}>
                   <group position={[0, -0.25, 0]}>
-                    <XGuide size={140} opacity={0.32} />
+                    <GridGuide size={140} divisions={28} opacity={0.3} />
                   </group>
                   {(() => {
                     const config = MODEL_RENDER_MAP[selectedModel];
