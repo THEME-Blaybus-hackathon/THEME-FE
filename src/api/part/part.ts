@@ -13,3 +13,8 @@ export async function getObjectsByCategory(
 
   return response.data;
 }
+
+export async function getObjectById(id: string) {
+  const response = await axiosInstance.get(`/api/objects/${id}`);
+  return response.data;
+}

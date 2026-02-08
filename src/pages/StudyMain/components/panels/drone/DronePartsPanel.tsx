@@ -1,21 +1,44 @@
-import { useObjects } from '../../../../../api/part/queries';
+import { useState } from 'react';
+import { useObjects, useObject } from '../../../../../api/part/queries';
 import type { ObjectPart } from '../../../../../api/part/type';
+import {
+  Panel,
+  PartItem,
+  PartHeader,
+  PartContent,
+  Arrow,
+  PartName,
+} from './DronePartsPanel.style';
 
 export default function DronePartsPanel() {
-  const { data, isLoading, error } = useObjects('drone');
-
-  if (isLoading) return <p>부품 불러오는 중...</p>;
-  if (error) return <p>부품 정보를 불러오지 못했어요.</p>;
+  const { data } = useObjects('drone');
+  const [openPartId, setOpenPartId] = useState<string | null>(null);
+  const { data: selectedPart } = useObject(openPartId ?? '');
 
   return (
-    <>
-      <h3>주요 부품</h3>
+    <Panel>
+      {data?.parts.map((part: ObjectPart) => {
+        const isOpen = openPartId === String(part.id);
 
-      <ul>
-        {data?.parts.map((part: ObjectPart) => (
-          <li key={part.id}>{part.name}</li>
-        ))}
-      </ul>
-    </>
+        return (
+          <PartItem key={part.id}>
+            <PartHeader
+              $open={isOpen}
+              $active={isOpen}
+              onClick={() => setOpenPartId(isOpen ? null : String(part.id))}
+            >
+              <PartName>{part.name}</PartName>
+              <Arrow $open={isOpen} $active={isOpen}>
+                ▲
+              </Arrow>
+            </PartHeader>
+
+            <PartContent $open={isOpen}>
+              {isOpen && selectedPart?.description}
+            </PartContent>
+          </PartItem>
+        );
+      })}
+    </Panel>
   );
 }
