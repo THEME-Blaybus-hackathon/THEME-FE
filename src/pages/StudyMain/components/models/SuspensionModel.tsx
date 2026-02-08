@@ -6,9 +6,14 @@ import type { ThreeElements, ThreeEvent } from '@react-three/fiber';
 
 type Props = ThreeElements['group'] & {
   explode?: number;
+  selectedMeshName: string | null;
 };
 
-export default function SuspensionModel({ explode = 0, ...props }: Props) {
+export default function SuspensionModel({
+  explode = 0,
+  selectedMeshName,
+  ...props
+}: Props) {
   const { scene } = useGLTF('/assets/models/Suspension.glb');
   const { camera } = useThree();
 
@@ -16,34 +21,51 @@ export default function SuspensionModel({ explode = 0, ...props }: Props) {
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
 
   const [hoveredName, setHoveredName] = useState<string | null>(null);
-  const [activeName, setActiveName] = useState<string | null>(null);
 
-  /** 🎥 카메라 */
   const cameraTargetRef = useRef<THREE.Vector3 | null>(null);
   const defaultCameraPosRef = useRef<THREE.Vector3 | null>(null);
 
   const EX_FACTOR = 7;
 
-  /** 🔹 분해 방향 계산 (기존 로직 유지) */
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3();
 
-    if (name.includes('Nit')) {
-      dir.set(0, -1.2, 0);
-    } else if (name.includes('Nut')) {
-      dir.set(0, 1.9, 0);
-    } else if (name.includes('Spring')) {
-      dir.set(0, 0.6, 0);
-    } else if (name.includes('Rod')) {
-      dir.set(0, 0.9, 0);
-    } else if (name.includes('Base')) {
-      dir.set(0, -0.7, 0);
-    }
+    if (name.includes('Nit')) dir.set(0, -1.2, 0);
+    else if (name.includes('Nut')) dir.set(0, 1.9, 0);
+    else if (name.includes('Spring')) dir.set(0, 0.6, 0);
+    else if (name.includes('Rod')) dir.set(0, 0.9, 0);
+    else if (name.includes('Base')) dir.set(0, -0.7, 0);
 
     return dir;
   };
 
-  /** 🔹 초기 위치 + 카메라 기본 위치 저장 */
+  const matchBySelectedName = (
+    selected: string | null,
+    meshName: string,
+  ): boolean => {
+    if (!selected) return false;
+
+    switch (selected) {
+      case 'Coil Spring':
+        return meshName.includes('Spring');
+
+      case 'Shock Rod':
+        return meshName.includes('Rod');
+
+      case 'Lock Nut':
+        return meshName.includes('Nut') || meshName.includes('Nit');
+
+      case 'Base':
+        return meshName.includes('Base');
+
+      case 'Fixing Pin':
+        return meshName.includes('Solid1');
+
+      default:
+        return false;
+    }
+  };
+
   useEffect(() => {
     if (!defaultCameraPosRef.current) {
       defaultCameraPosRef.current = camera.position.clone();
@@ -54,11 +76,11 @@ export default function SuspensionModel({ explode = 0, ...props }: Props) {
     scene.traverse((obj) => {
       if (!obj.name || initialPosRef.current[obj.name]) return;
 
+      partsRef.current[obj.name] = obj;
+
       if (obj instanceof THREE.Mesh) {
         names.push(obj.name);
       }
-
-      partsRef.current[obj.name] = obj;
 
       const dir = getDir(obj.name);
       const basePos = obj.position
@@ -69,15 +91,49 @@ export default function SuspensionModel({ explode = 0, ...props }: Props) {
     });
 
     console.log('🧩 Suspension GLB Mesh Parts:', names);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene]);
+  }, [scene, explode]);
 
-  /** 🔹 프레임 처리 */
+  useEffect(() => {
+    if (!hoveredName) return;
+
+    const matched = Object.keys(partsRef.current).filter((name) =>
+      matchBySelectedName(hoveredName, name),
+    );
+
+    console.log('🟢 Hover:', hoveredName);
+    console.log('📦 매칭된 mesh 목록:', matched);
+  }, [hoveredName]);
+
+  useEffect(() => {
+    if (!selectedMeshName) {
+      cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
+      return;
+    }
+
+    const targets = Object.values(partsRef.current).filter((obj) =>
+      matchBySelectedName(selectedMeshName, obj.name),
+    );
+
+    if (targets.length === 0) return;
+
+    const center = new THREE.Vector3();
+    targets.forEach((obj) => {
+      const p = new THREE.Vector3();
+      obj.getWorldPosition(p);
+      center.add(p);
+    });
+    center.divideScalar(targets.length);
+
+    cameraTargetRef.current = center.clone().add(new THREE.Vector3(0, 3, 10));
+
+    console.log('🎥 선택된 Suspension 파트:', selectedMeshName);
+    console.log(
+      '📦 매칭 mesh:',
+      targets.map((t) => t.name),
+    );
+  }, [selectedMeshName]);
+
   useFrame(() => {
-    const hoverId = hoveredName?.split('_')[0];
-    const activeId = activeName?.split('_')[0];
-
-    /** ===== 파트 이동 + 하이라이트 ===== */
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
       if (!base) return;
@@ -88,8 +144,8 @@ export default function SuspensionModel({ explode = 0, ...props }: Props) {
 
       if (!(obj instanceof THREE.Mesh)) return;
 
-      const isActive = !!activeId && name.startsWith(activeId);
-      const isHover = !!hoverId && name.startsWith(hoverId);
+      const isActive = matchBySelectedName(selectedMeshName, name);
+      const isHover = matchBySelectedName(hoveredName, name);
 
       const mat = obj.material as THREE.MeshStandardMaterial;
       if (!mat?.emissive) return;
@@ -111,13 +167,11 @@ export default function SuspensionModel({ explode = 0, ...props }: Props) {
       mat.transparent = true;
     });
 
-    /** ===== 🎥 카메라 이동 ===== */
     if (cameraTargetRef.current) {
       camera.position.lerp(cameraTargetRef.current, 0.08);
       camera.lookAt(0, 0, 0);
 
       if (camera.position.distanceTo(cameraTargetRef.current) < 0.05) {
-        camera.position.copy(cameraTargetRef.current);
         cameraTargetRef.current = null;
       }
     }
@@ -131,38 +185,6 @@ export default function SuspensionModel({ explode = 0, ...props }: Props) {
         if (e.object.name) setHoveredName(e.object.name);
       }}
       onPointerOut={() => setHoveredName(null)}
-      // ✅ 부품 클릭
-      onClick={(e: ThreeEvent<MouseEvent>) => {
-        e.stopPropagation();
-        if (!e.object.name) return;
-
-        // 🔁 같은 부품 다시 클릭 → 해제
-        if (activeName === e.object.name) {
-          setActiveName(null);
-          cameraTargetRef.current =
-            defaultCameraPosRef.current?.clone() ?? null;
-          return;
-        }
-
-        setActiveName(e.object.name);
-
-        const worldPos = new THREE.Vector3();
-        e.object.getWorldPosition(worldPos);
-
-        cameraTargetRef.current = worldPos
-          .clone()
-          .add(new THREE.Vector3(0, 3, 10));
-
-        console.log('🧩 선택된 Suspension 부품', {
-          name: e.object.name,
-          position: worldPos,
-        });
-      }}
-      // ✅ 빈 공간 클릭 → 선택 해제
-      onPointerMissed={() => {
-        setActiveName(null);
-        cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
-      }}
     >
       <primitive object={scene} />
     </group>

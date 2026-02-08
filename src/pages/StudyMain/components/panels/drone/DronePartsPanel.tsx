@@ -36,7 +36,6 @@ export default function DronePartsPanel({
               onClick={() => {
                 setOpenPartId(isOpen ? null : String(part.id));
 
-                // 🔥 여기서 3D 모델 선택
                 onSelectMesh(selectedMeshName === part.name ? null : part.name);
               }}
             >
