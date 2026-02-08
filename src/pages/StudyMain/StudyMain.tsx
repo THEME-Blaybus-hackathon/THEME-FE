@@ -11,6 +11,13 @@ import RobotArmModel from './components/models/RobotArmModel';
 import RobotGripperModel from './components/models/RobotGripperModel';
 import SuspensionModel from './components/models/SuspensionModel';
 
+import modelIcon from '../../assets/images/Info.svg';
+import partIcon from '../../assets/images/part.svg';
+import noteIcon from '../../assets/images/note.svg';
+import aiIcon from '../../assets/images/ai.svg';
+
+
+
 import Header from '../../components/Header';
 
 import BlueInfoPanel from './components/panels/BlueInfoPanel';
@@ -65,6 +72,8 @@ import {
   Slider,
   RightBottomRail,
   TopRail,
+  ClickableIcon,
+  RightControls,
 } from './StudyMain.style';
 
 type GridGuideProps = {
@@ -216,7 +225,7 @@ export default function StudyMain() {
                 )}
               </LeftControls>
 
-              {/* ===== 오른쪽 패널 (컴포넌트화 완료) ===== */}
+              {/* ===== 상단패널 (컴포넌트화 완료) ===== */}
               {panelOpen && rightTab && PanelContent && (
                 <BlueInfoPanel
                   key={`${selectedModel}-${rightTab}`}
@@ -232,33 +241,46 @@ export default function StudyMain() {
 
               {/* 위쪽 레일 */}
               <TopRail>
-                <IconButton
-                  active={rightTab === 'MODEL'}
-                  onClick={() => handleClickTab('MODEL')}
-                >
-                  모델
-                </IconButton>
+              <IconButton active={rightTab === 'MODEL'}
+                onClick={() => handleClickTab('MODEL')}
+              >
+                <span className="icon">
+                    <img src={modelIcon} alt="모델" />
+                </span>
+               <span className="label">모델</span>
+              </IconButton>
+
                 <IconButton
                   active={rightTab === 'PARTS'}
                   onClick={() => handleClickTab('PARTS')}
                 >
-                  부품
+                <span className="icon">
+                    <img src={partIcon} alt="부품" />
+                </span>
+               <span className="label">부품</span>
                 </IconButton>
                 <IconButton
                   active={rightTab === 'NOTES'}
                   onClick={() => handleClickTab('NOTES')}
                 >
-                  노트
+                <span className="icon">
+                    <img src={noteIcon} alt="노트" />
+                </span>
+               <span className="label">노트</span>
                 </IconButton>
+                
               </TopRail>
               <RightBottomRail>
-                <IconButton
-                  style={{ marginTop: '8px', border: '1.5px solid #2F54EB' }}
-                  onClick={() => alert('AI 기능 실행')}
-                >
-                  AI
-                </IconButton>
+              <ClickableIcon
+                src={aiIcon}
+                alt="AI"
+                onClick={() => alert('AI 기능 실행')}
+              />
+                
               </RightBottomRail>
+              <RightControls>
+                <DownloadButton>⬇</DownloadButton>
+              </RightControls>
 
               {/* 하단 슬라이더 */}
               <ExplodeBox>
