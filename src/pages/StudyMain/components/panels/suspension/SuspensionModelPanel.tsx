@@ -1,8 +1,26 @@
 // components/panels/suspension/SuspensionModelPanel.tsx
-
+import SuspensionSvg from '../../../../../assets/images/suspension.svg';
 export default function SuspensionModelPanel() {
   return (
     <>
+    <div
+        style={{
+          width: '100%',
+          height: 160,
+          marginBottom: 16,
+        }}
+      >
+        <img
+          src={SuspensionSvg}
+          alt="Robot Arm"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
+      </div>
       <p>
         본 서스펜션 모델은 차량 주행 안정성을 고려하여 설계된
         더블 위시본(Double Wishbone) 방식의 서스펜션 시스템입니다.

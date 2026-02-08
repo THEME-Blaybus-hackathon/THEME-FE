@@ -105,10 +105,20 @@ export const ModelSelect = styled.select`
   cursor: pointer;
 `;
 
+export const RightControls = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  display: flex;
+  gap: 14px;
+  pointer-events: auto;
+`;
+
 export const DownloadButton = styled.button`
-  width: 46px;
+  width: 30px;
   height: 30px;
   padding: 0;
+  
 
   border-radius: 25px;
   border: 1px solid rgba(90, 140, 220, 0.55);
@@ -133,12 +143,12 @@ export const DownloadButton = styled.button`
 ========================= */
 export const TopRail = styled.div`
   position: absolute;
-  right: 100px;
-  top: 5%;
+  right: 10px;
+  top: 20%;
 
   display: flex;
-  flex-direction: row;
-  gap: 12px;
+  flex-direction:column;
+  gap: 0px;
   z-index: 10;
 
   pointer-events: auto;
@@ -146,7 +156,7 @@ export const TopRail = styled.div`
 
 export const RightBottomRail = styled.div`
   position: absolute;
-  left: 40px;
+  right: 40px;
   top: 89%;
 
   display: flex;
@@ -156,36 +166,117 @@ export const RightBottomRail = styled.div`
 
   pointer-events: auto;
 `;
-export const IconButton = styled.button<{ active?: boolean }>`
-  height: 54px;
-  width: ${({ active }) => (active ? '94px' : '54px')};
 
-  border-radius: 999px;
+export const ClickableIcon = styled.img`
+  width: 60px;
+  height: 60px;
+
+  cursor: pointer;
+
+  opacity: 0.9;
+
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease,
+    filter 0.18s ease;
+
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
+
+  &:hover {
+    transform: translateY(-2px) scale(1.06);
+    opacity: 1;
+    filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.45));
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+    opacity: 0.85;
+  }
+`;
+
+export const IconButton = styled.button<{ active?: boolean }>`
+  height: ${({ active }) => (active ? '96px' : '54px')};
+  width: 54px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ active }) => (active ? '10px' : '0')};
+
+  padding: 8px, 0;
+
+  border-radius: 8px;
+
   border: 1px solid
     ${({ active }) =>
       active
-        ? 'rgba(90, 140, 220, 0.65)'
-        : 'rgba(255,255,255,0.35)'};
+        ? 'rgba(120, 160, 255, 0.45)'
+        : 'rgba(255, 255, 255, 0.25)'};
 
   background: ${({ active }) =>
     active
-      ? 'rgba(90, 140, 220, 0.95)'
-      : 'rgba(255,255,255,0.92)'};
+      ? 'rgba(120, 160, 255, 0.28)'
+      : 'rgba(255, 255, 255, 0.18)'};
 
-  color: ${({ active }) => (active ? '#0f1f3a' : '#1c1c1c')};
+  color: ${({ active }) => (active ? '#e8f0ff' : '#f5f7fa')};
 
   font-size: 13px;
   font-weight: 800;
 
-  backdrop-filter: blur(14px);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
 
-  transition: all 0.22s ease;
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  transition:
+    height 0.28s ease,
+    background 0.25s ease,
+    border 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
 
   &:hover {
     transform: translateY(-1px);
   }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  /* 아이콘 */
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  /* 텍스트 */
+  .label {
+    font-size: 12px;
+    line-height:0.5;
+
+    opacity: ${({ active }) => (active ? 1 : 0)};
+    transform: ${({ active }) =>
+      active ? 'translateY(0)' : 'translateY(-4px)'};
+
+    transition:
+      opacity 0.22s ease,
+      transform 0.22s ease;
+
+    pointer-events: none;
+  }
 `;
+
+
+
 
 /* =========================
    BOTTOM SLIDER
@@ -202,7 +293,7 @@ export const ExplodeBox = styled.div`
 
 export const Slider = styled.input.attrs({ type: 'range' })`
   width: 100%;
-  height: 4px;
+  height: 10px;
 
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.85);
@@ -221,8 +312,8 @@ export const Slider = styled.input.attrs({ type: 'range' })`
 ========================= */
 export const BlueInfoPanel = styled.aside`
   position: absolute;
-  right: 40px;
-  top: 70px;
+  right: 55px;
+  top: 40px;
   z-index: 9;
 
   width: 340px;

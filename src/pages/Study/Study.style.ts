@@ -2,47 +2,42 @@ import styled from 'styled-components';
 
 export const PageWrapper = styled.div`
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      900px 600px at 50% 40%,
+      rgba(90, 120, 200, 0.35),
+      rgba(0, 0, 0, 0) 60%
+    ),
+    linear-gradient(to bottom, #0b1220, #060b14);
+`;
+
+export const TextContent = styled.main`
+  padding: 56px 80px 32px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  gap: 10px;
+`;
+
+export const Title = styled.h1`
+  font-size: 40px;
+  font-weight: 900;
+  color: rgba(90, 130, 255, 0.9);
+`;
+
+export const Explan = styled.p`
+  font-size: 20px;
+  color: #cbd5e1;
 `;
 
 export const CardWrapper = styled.div`
   flex: 1;
+  width: 100%;
+  padding: 32px 80px 64px;
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, 300px);
-  height: calc(100vh - 220px);
-  overflow-y: auto;
-  padding-right: 8px;
-  scroll-behavior: smooth;
-  scroll-behavior: smooth;
-  white-space: nowrap;
-  justify-content: center;
-  align-items: center;
-  gap: 5vw;
-  width: 90%;
-  align-self: center;
-  padding: ${({ theme }) => theme.spacing.lg};
-`;
-
-export const TextContent = styled.main`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: ${({ theme }) => theme.spacing.lg};
-  margin-left: 100px;
-`;
-
-export const Title = styled.h1`
-  color: white;
-  font-size: 36px;
-  color: ${({ theme }) => theme.colors.primary};
-`;
-
-export const Explan = styled.p`
-  color: white;
-  font-size: 18px;
-  line-height: 1.5;
-  max-width: 400px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 36px;
 `;
