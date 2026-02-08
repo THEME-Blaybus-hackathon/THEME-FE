@@ -1,31 +1,48 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMemo, saveMemo } from "./note";
-// queryKey나 이름이 겹치지 않게 변경
+import { getMemosByPart, createMemo, updateMemo, deleteMemo } from "./note";
+
 export function useMemoData(partName: string) {
-  // 이름을 useMemo -> useMemoData로 변경
   return useQuery({
     queryKey: ["memos", partName],
-    queryFn: () => getMemo(partName),
+    queryFn: () => getMemosByPart(partName),
     enabled: !!partName,
   });
 }
-export function useSaveMemo() {
+export function useCreateMemo() {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({
-      partName,
-      content,
-    }: {
-      partName: string;
+    // ✅ vars 타입에 title을 추가합니다.
+    mutationFn: (vars: { partName: string; content: string; title: string }) =>
+      createMemo(vars.partName, vars.content, vars.title),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["memos", vars.partName] });
+      alert("저장되었습니다!");
+    },
+  });
+}
+export function useUpdateMemo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: {
+      id: number;
       content: string;
-    }) => saveMemo(partName, content),
-    onSuccess: (_, variables) => {
-      // 저장이 성공하면 해당 메모 데이터를 최신화(다시 가져오기)
-      queryClient.invalidateQueries({
-        queryKey: ["memos", variables.partName],
-      });
-      alert("성공적으로 저장되었습니다!");
+      title: string;
+      partName: string;
+    }) => updateMemo(vars.id, vars.content, vars.title, vars.partName), // ✅ title 추가
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["memos", vars.partName] });
+      alert("수정되었습니다!");
+    },
+  });
+}
+
+export function useDeleteMemo() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: { id: number; partName: string }) => deleteMemo(vars.id),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["memos", vars.partName] });
+      alert("삭제되었습니다!");
     },
   });
 }
