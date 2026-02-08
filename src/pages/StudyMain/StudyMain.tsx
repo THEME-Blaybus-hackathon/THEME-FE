@@ -100,7 +100,7 @@ export default function StudyMain() {
   );
   const [rightTab, setRightTab] = useState<PanelTab | null>('MODEL');
   const [panelOpen, setPanelOpen] = useState(true);
-
+  const [selectedMeshName, setSelectedMeshName] = useState<string | null>(null);
   const [explodes, setExplodes] = useState<Record<string, number>>({
     Drone: 0,
     Arm: 0,
@@ -161,7 +161,11 @@ export default function StudyMain() {
 
                     return (
                       <group scale={scale}>
-                        <Component explode={explodes[explodeKey] ?? 0} />
+                        <Component
+                          explode={explodes[explodeKey] ?? 0}
+                          selectedMeshName={selectedMeshName}
+                          onSelectMesh={setSelectedMeshName}
+                        />
                       </group>
                     );
                   })()}
@@ -219,7 +223,10 @@ export default function StudyMain() {
                   title={getPanelTitle()}
                   onClose={handleClosePanel}
                 >
-                  <PanelContent />
+                  <PanelContent
+                    selectedMeshName={selectedMeshName}
+                    onSelectMesh={setSelectedMeshName}
+                  />
                 </BlueInfoPanel>
               )}
 
@@ -243,7 +250,6 @@ export default function StudyMain() {
                 >
                   노트
                 </IconButton>
-                
               </TopRail>
               <RightBottomRail>
                 <IconButton

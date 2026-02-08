@@ -48,7 +48,7 @@ export const Arrow = styled.span<{ $open: boolean; $active: boolean }>`
     transform 0.2s ease,
     color 0.15s ease;
   transform: rotate(${({ $open }) => ($open ? '180deg' : '0deg')});
-  color: ${({ $active }) => ($active ? '#00e5ff' : '#ffffff')};
+  color: ${({ $active }) => ($active ? '#ffffff' : '#ffffff')};
 `;
 
 export const PartContent = styled.div<{ $open: boolean }>`

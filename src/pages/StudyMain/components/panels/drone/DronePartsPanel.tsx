@@ -8,9 +8,17 @@ import {
   PartContent,
   Arrow,
   PartName,
-} from './DronePartsPanel.style';
+} from '../../PartsPanel.style';
 
-export default function DronePartsPanel() {
+type Props = {
+  selectedMeshName: string | null;
+  onSelectMesh: (meshName: string | null) => void;
+};
+
+export default function DronePartsPanel({
+  selectedMeshName,
+  onSelectMesh,
+}: Props) {
   const { data } = useObjects('drone');
   const [openPartId, setOpenPartId] = useState<string | null>(null);
   const { data: selectedPart } = useObject(openPartId ?? '');
@@ -25,7 +33,12 @@ export default function DronePartsPanel() {
             <PartHeader
               $open={isOpen}
               $active={isOpen}
-              onClick={() => setOpenPartId(isOpen ? null : String(part.id))}
+              onClick={() => {
+                setOpenPartId(isOpen ? null : String(part.id));
+
+                // 🔥 여기서 3D 모델 선택
+                onSelectMesh(selectedMeshName === part.name ? null : part.name);
+              }}
             >
               <PartName>{part.name}</PartName>
               <Arrow $open={isOpen} $active={isOpen}>
