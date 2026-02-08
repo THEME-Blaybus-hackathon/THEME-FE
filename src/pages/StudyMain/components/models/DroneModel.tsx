@@ -27,7 +27,9 @@ export default function DroneModel({
 
   const EX_FACTOR = 7;
 
-  /** 🔹 분해 방향 */
+  /* =========================
+   * explode 방향 계산
+   * ========================= */
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3();
 
@@ -45,7 +47,56 @@ export default function DroneModel({
     return dir;
   };
 
-  /** 🔹 초기 위치 + 카메라 기본 위치 */
+  /* =========================
+   * 선택 이름 ↔ mesh 매칭
+   * ========================= */
+  const matchBySelectedName = (
+    selected: string | null,
+    meshName: string,
+  ): boolean => {
+    if (!selected) return false;
+
+    switch (selected) {
+      case 'xyz':
+        return meshName.includes('xyz');
+
+      case 'Nut':
+        return meshName.includes('Nut');
+
+      case 'Main Frame':
+        return meshName.includes('Mainframe');
+
+      case 'Impeller':
+        return meshName.includes('Impellar');
+
+      case 'Gearing':
+        return meshName.includes('Gearing');
+
+      case 'Arm':
+        return meshName.includes('Arm_gear_');
+
+      case 'Leg':
+        return (
+          meshName.includes('Solid1034_') ||
+          meshName.includes('Solid1004_') ||
+          meshName.includes('Solid1040_') ||
+          meshName.includes('Solid1027_')
+        );
+
+      case 'Assembly Screw':
+        return meshName.includes('Screw_');
+
+      case 'Beater Disc':
+        return meshName.includes('Solid1001');
+
+      default:
+        return false;
+    }
+  };
+
+  /* =========================
+   * 초기 위치 & 파트 수집
+   * ========================= */
   useEffect(() => {
     if (!defaultCameraPosRef.current) {
       defaultCameraPosRef.current = camera.position.clone();
@@ -65,30 +116,47 @@ export default function DroneModel({
     });
   }, [scene]);
 
-  /** ✅ 외부에서 선택된 mesh 변경 시 카메라 전환 */
+  useEffect(() => {
+    if (!hoveredName) return;
+
+    const matched = Object.keys(partsRef.current).filter((name) =>
+      matchBySelectedName(hoveredName, name),
+    );
+
+    console.log('🟢 Hover:', hoveredName);
+    console.log('📦 매칭된 mesh 목록:', matched);
+  }, [hoveredName]);
+
   useEffect(() => {
     if (!selectedMeshName) {
-      // 🔁 선택 해제 → 카메라 원위치
       cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
       return;
     }
 
-    const targetObj = partsRef.current[selectedMeshName];
-    if (!targetObj) return;
+    const targetMeshes = Object.values(partsRef.current).filter((obj) =>
+      matchBySelectedName(selectedMeshName, obj.name),
+    );
 
-    const worldPos = new THREE.Vector3();
-    targetObj.getWorldPosition(worldPos);
+    if (targetMeshes.length === 0) return;
 
-    cameraTargetRef.current = worldPos.clone().add(new THREE.Vector3(0, 3, 10));
+    const center = new THREE.Vector3();
+    targetMeshes.forEach((obj) => {
+      const pos = new THREE.Vector3();
+      obj.getWorldPosition(pos);
+      center.add(pos);
+    });
+    center.divideScalar(targetMeshes.length);
 
-    console.log('🎥 카메라 포커스 대상:', selectedMeshName);
+    cameraTargetRef.current = center.clone().add(new THREE.Vector3(0, 3, 10));
+
+    console.log('🎥 선택된 파트:', selectedMeshName);
+    console.log(
+      '📦 포함된 mesh:',
+      targetMeshes.map((o) => o.name),
+    );
   }, [selectedMeshName]);
 
-  /** 🔹 프레임 처리 */
   useFrame(() => {
-    const hoverId = hoveredName?.split('_')[0];
-    const activeId = selectedMeshName?.split('_')[0];
-
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
       if (!base) return;
@@ -99,8 +167,8 @@ export default function DroneModel({
 
       if (!(obj instanceof THREE.Mesh)) return;
 
-      const isActive = !!activeId && name.startsWith(activeId);
-      const isHover = !!hoverId && name.startsWith(hoverId);
+      const isActive = matchBySelectedName(selectedMeshName, name);
+      const isHover = matchBySelectedName(hoveredName, name);
 
       const mat = obj.material as THREE.MeshStandardMaterial;
       if (!mat?.emissive) return;
@@ -122,7 +190,6 @@ export default function DroneModel({
       mat.transparent = true;
     });
 
-    // 🎥 카메라 이동
     if (cameraTargetRef.current) {
       camera.position.lerp(cameraTargetRef.current, 0.08);
       camera.lookAt(0, 0, 0);

@@ -2,15 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import type { ThreeElements, ThreeEvent } from '@react-three/fiber';
+import type { ThreeElements } from '@react-three/fiber';
 
 type Props = ThreeElements['group'] & {
   explode?: number;
+  selectedMeshName: string | null;
 };
 
-type CameraMode = 'idle' | 'focus' | 'return';
-
-export default function RobotArmModel({ explode = 0, ...props }: Props) {
+export default function RobotArmModel({
+  explode = 0,
+  selectedMeshName,
+  ...props
+}: Props) {
   const { scene } = useGLTF('/assets/models/RobotArm.glb');
   const { camera } = useThree();
 
@@ -18,16 +21,12 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
 
   const [hoveredName, setHoveredName] = useState<string | null>(null);
-  const [activeName, setActiveName] = useState<string | null>(null);
 
-  /** 🎥 카메라 */
   const cameraTargetRef = useRef<THREE.Vector3 | null>(null);
   const defaultCameraPosRef = useRef<THREE.Vector3 | null>(null);
-  const cameraModeRef = useRef<CameraMode>('idle');
 
   const EX_FACTOR = 10;
 
-  /** 🔹 분해 방향 계산 (기존 로직 유지) */
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3(0, 0, 0);
     const id = name.split('_')[0];
@@ -47,7 +46,40 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
     return dir;
   };
 
-  /** 🔹 초기 위치 + 카메라 기본 위치 저장 */
+  const matchBySelectedName = (
+    selected: string | null,
+    meshName: string,
+  ): boolean => {
+    if (!selected) return false;
+
+    switch (selected) {
+      case 'Robot Base':
+        return meshName.includes('Solid1_1') || meshName.includes('Solid1_2');
+
+      case 'Arm Part 2':
+        return meshName.includes('Solid1001_');
+
+      case 'Arm Part 3':
+        return meshName.includes('Solid1002_');
+
+      case 'Arm Part 4':
+        return meshName.includes('Solid1003_');
+
+      case 'Arm Part 5':
+        return meshName.includes('Solid1004_');
+
+      case 'Arm Part 6':
+        return meshName.includes('Solid1005_');
+      case 'Arm Part 7':
+        return meshName.includes('Solid1006_');
+      case 'Arm Part 8':
+        return meshName.includes('Solid1007') || meshName.includes('Solid1008');
+
+      default:
+        return false;
+    }
+  };
+
   useEffect(() => {
     if (!defaultCameraPosRef.current) {
       defaultCameraPosRef.current = camera.position.clone();
@@ -65,15 +97,49 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
 
       initialPosRef.current[obj.name] = basePos;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
-  /** 🔹 프레임 처리 */
-  useFrame(() => {
-    const hoverId = hoveredName?.split('_')[0];
-    const activeId = activeName?.split('_')[0];
+  useEffect(() => {
+    if (!hoveredName) return;
 
-    /** ===== 파트 애니메이션 + 하이라이트 ===== */
+    const matched = Object.keys(partsRef.current).filter((name) =>
+      matchBySelectedName(hoveredName, name),
+    );
+
+    console.log('🟢 Hover:', hoveredName);
+    console.log('📦 매칭된 mesh 목록:', matched);
+  }, [hoveredName]);
+
+  useEffect(() => {
+    if (!selectedMeshName) {
+      cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
+      return;
+    }
+
+    const matched = Object.values(partsRef.current).filter((obj) =>
+      matchBySelectedName(selectedMeshName, obj.name),
+    );
+
+    if (matched.length === 0) return;
+
+    const center = new THREE.Vector3();
+    matched.forEach((obj) => {
+      const pos = new THREE.Vector3();
+      obj.getWorldPosition(pos);
+      center.add(pos);
+    });
+    center.divideScalar(matched.length);
+
+    cameraTargetRef.current = center.clone().add(new THREE.Vector3(0, 3, 10));
+
+    console.log('🦾 선택된 로봇암 파트:', selectedMeshName);
+    console.log(
+      '📦 포함된 mesh:',
+      matched.map((o) => o.name),
+    );
+  }, [selectedMeshName]);
+
+  useFrame(() => {
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
       if (!base) return;
@@ -84,8 +150,8 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
 
       if (!(obj instanceof THREE.Mesh)) return;
 
-      const isActive = !!activeId && name.startsWith(activeId);
-      const isHover = !!hoverId && name.startsWith(hoverId);
+      const isActive = matchBySelectedName(selectedMeshName, name);
+      const isHover = matchBySelectedName(hoveredName, name);
 
       const mat = obj.material as THREE.MeshStandardMaterial;
       if (!mat?.emissive) return;
@@ -107,15 +173,12 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
       mat.transparent = true;
     });
 
-    /** ===== 🎥 카메라 이동 ===== */
     if (cameraTargetRef.current) {
       camera.position.lerp(cameraTargetRef.current, 0.08);
       camera.lookAt(0, 0, 0);
 
       if (camera.position.distanceTo(cameraTargetRef.current) < 0.05) {
-        camera.position.copy(cameraTargetRef.current);
         cameraTargetRef.current = null;
-        cameraModeRef.current = 'idle';
       }
     }
   });
@@ -123,46 +186,11 @@ export default function RobotArmModel({ explode = 0, ...props }: Props) {
   return (
     <group
       {...props}
-      onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+      onPointerOver={(e) => {
         e.stopPropagation();
         if (e.object.name) setHoveredName(e.object.name);
       }}
       onPointerOut={() => setHoveredName(null)}
-      // ✅ 부품 클릭
-      onClick={(e: ThreeEvent<MouseEvent>) => {
-        e.stopPropagation();
-        if (!e.object.name) return;
-
-        // 🔁 같은 부품 재클릭 → 해제
-        if (activeName === e.object.name) {
-          setActiveName(null);
-          cameraTargetRef.current =
-            defaultCameraPosRef.current?.clone() ?? null;
-          cameraModeRef.current = 'return';
-          return;
-        }
-
-        setActiveName(e.object.name);
-
-        const worldPos = new THREE.Vector3();
-        e.object.getWorldPosition(worldPos);
-
-        cameraTargetRef.current = worldPos
-          .clone()
-          .add(new THREE.Vector3(0, 3, 10));
-        cameraModeRef.current = 'focus';
-
-        console.log('🦾 선택된 로봇 암 부품', {
-          name: e.object.name,
-          position: worldPos,
-        });
-      }}
-      // ✅ 빈 공간 클릭 → 해제
-      onPointerMissed={() => {
-        setActiveName(null);
-        cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
-        cameraModeRef.current = 'return';
-      }}
     >
       <primitive object={scene} />
     </group>
