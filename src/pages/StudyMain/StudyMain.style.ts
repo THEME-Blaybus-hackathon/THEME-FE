@@ -1,59 +1,25 @@
 import styled from 'styled-components';
 
-/* Root */
+/* =========================
+   ROOT
+========================= */
 export const Container = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-
-  margin: 0;
-  padding: 0;
   overflow: hidden;
 
-  font-family:
-    Pretendard,
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    sans-serif;
-  color: rgba(255, 255, 255, 0.92);
+  font-family: Pretendard, system-ui, sans-serif;
+  color: rgba(235, 240, 255, 0.92);
 `;
 
-export const LogoutButton = styled.button`
-  margin-left: 12px;
-  padding: 12px 18px;
-
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 14px;
-  cursor: pointer;
-
-  background: rgba(60, 150, 140, 0.72);
-  color: rgba(255, 255, 255, 0.95);
-
-  font-weight: 900;
-  font-size: 15px;
-
-  transition: all 180ms ease;
-
-  &:hover {
-    background: rgba(60, 150, 140, 0.92);
-    transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
-  }
-
-  &:active {
-    transform: translateY(0px);
-  }
-`;
-
-/* Main / Viewport */
+/* =========================
+   MAIN / VIEWPORT
+========================= */
 export const Main = styled.main`
   flex: 1;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+  position: relative;
 `;
 
 export const ViewportFrame = styled.div`
@@ -66,265 +32,242 @@ export const Viewport = styled.section`
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
 
-  /* 중앙 밝아짐(공간감)*/
   background:
     radial-gradient(
-      900px 520px at 50% 52%,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.06) 25%,
-      rgba(255, 255, 255, 0.02) 45%,
-      rgba(0, 0, 0, 0) 70%
+      820px 520px at 50% 42%,
+      rgba(90, 140, 220, 0.22) 0%,
+      rgba(0, 0, 0, 0) 58%
     ),
     radial-gradient(
-      1600px 900px at 50% 55%,
-      rgba(60, 255, 240, 0.06) 0%,
-      rgba(0, 0, 0, 0) 55%
+      1600px 1000px at 50% 68%,
+      rgba(0, 0, 0, 0.82) 70%,
+      rgba(0, 0, 0, 0.96) 100%
     ),
-    radial-gradient(
-      1500px 1000px at 50% 60%,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0.65) 70%,
-      rgba(0, 0, 0, 0.92) 100%
-    ),
-    #050505;
+    #060b14;
 `;
 
-/** Canvas 레이어 */
+/* =========================
+   LAYERS
+========================= */
 export const CanvasLayer = styled.div`
   position: absolute;
   inset: 0;
   z-index: 1;
+
+  background:
+    radial-gradient(
+      900px 600px at 50% 45%,
+      rgba(90, 140, 220, 0.22),
+      rgba(0, 0, 0, 0) 60%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(20, 30, 50, 0.35),
+      rgba(5, 8, 15, 0.65)
+    );
 `;
 
-/** UI 레이어 */
+
 export const UILayer = styled.div`
   position: absolute;
   inset: 0;
   z-index: 5;
-
-  /* OrbitControls 마우스 드래그 이벤트 막지 않게 */
   pointer-events: none;
 `;
 
-/* Left Controls*/
+/* =========================
+   LEFT CONTROLS
+========================= */
 export const LeftControls = styled.div`
   position: absolute;
-  top: 34px;
-  left: 34px;
-  z-index: 6;
-
+  top: 32px;
+  left: 32px;
   display: flex;
-  align-items: center;
   gap: 14px;
-
   pointer-events: auto;
 `;
 
 export const ModelSelect = styled.select`
-  height: 52px;
-  width: 220px;
-  padding: 0 18px;
+  height: 46px;
+  padding: 0 22px;
 
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  outline: none;
+  border-radius: 999px;
+  border: 1px solid rgba(160, 180, 220, 0.25);
 
-  background: rgba(120, 145, 145, 0.95);
-  color: rgba(0, 0, 0, 0.78);
+  background: rgba(20, 28, 40, 0.78);
+  backdrop-filter: blur(14px);
 
-  font-size: 18px;
-  font-weight: 800;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
 
-  appearance: none;
-  transition: all 160ms ease;
+  cursor: pointer;
+`;
+
+export const DownloadButton = styled.button`
+  width: 46px;
+  height: 30px;
+  padding: 0;
+
+  border-radius: 25px;
+  border: 1px solid rgba(90, 140, 220, 0.55);
+
+  background: rgba(90, 140, 220, 0.18);
+  color: rgba(120, 170, 255, 0.95);
+
+  font-size: 15px;
+  font-height : 20;
+  font-weight: 10;
+
+  cursor: pointer;
+  transition: all 180ms ease;
 
   &:hover {
-    filter: brightness(1.05);
+    background: rgba(90, 140, 220, 0.32);
+  }
+`;
+
+/* =========================
+   RIGHT RAIL
+========================= */
+export const TopRail = styled.div`
+  position: absolute;
+  right: 100px;
+  top: 5%;
+
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  z-index: 10;
+
+  pointer-events: auto;
+`;
+
+export const RightBottomRail = styled.div`
+  position: absolute;
+  left: 40px;
+  top: 89%;
+
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  z-index: 10;
+
+  pointer-events: auto;
+`;
+export const IconButton = styled.button<{ active?: boolean }>`
+  height: 54px;
+  width: ${({ active }) => (active ? '94px' : '54px')};
+
+  border-radius: 999px;
+  border: 1px solid
+    ${({ active }) =>
+      active
+        ? 'rgba(90, 140, 220, 0.65)'
+        : 'rgba(255,255,255,0.35)'};
+
+  background: ${({ active }) =>
+    active
+      ? 'rgba(90, 140, 220, 0.95)'
+      : 'rgba(255,255,255,0.92)'};
+
+  color: ${({ active }) => (active ? '#0f1f3a' : '#1c1c1c')};
+
+  font-size: 13px;
+  font-weight: 800;
+
+  backdrop-filter: blur(14px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+
+  transition: all 0.22s ease;
+
+  &:hover {
     transform: translateY(-1px);
   }
 `;
 
-export const DownloadButton = styled.button`
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  cursor: pointer;
-
-  display: grid;
-  place-items: center;
-
-  /* 더 잘 보이게 배경 강화 */
-  background: rgba(70, 230, 215, 0.28);
-  color: rgba(70, 230, 215, 0.98);
-
-  font-size: 18px;
-  font-weight: 900;
-
-  transition: all 180ms ease;
-
-  &:hover {
-    background: rgba(70, 230, 215, 0.45);
-    transform: translateY(-2px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  }
-
-  &:active {
-    transform: translateY(0px);
-  }
-`;
-
-/*
-Info Panel (오른쪽 패널)
-export const InfoPanel = styled.aside`
+/* =========================
+   BOTTOM SLIDER
+========================= */
+export const ExplodeBox = styled.div`
   position: absolute;
-  right: 130px;
-  top: 52%;
-  transform: translateY(-50%);
-  z-index: 6;
-
-  width: 300px;
-  height: 400px;
-
-  border-radius: 18px;
-  background: rgba(120, 145, 145, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-
-  padding: 16px;
-
-  pointer-events: auto;
-  transition: all 220ms ease;
-
-  &:hover {
-    transform: translateY(-52%) scale(1.01);
-    border: 1px solid rgba(160, 255, 245, 0.28);
-    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
-  }
-`;
-
-
-export const InfoHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  font-weight: 900;
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.82);
-`;*/
-
-export const InfoBody = styled.div`
-  margin-top: 16px;
-  height: calc(100% - 100px);
-  overflow-y: auto;
-
-  background: transparent;
-  border: none;
-  padding: 0;
-
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.6;
-  white-space: pre-wrap;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-  }
-`;
-
-export const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-  opacity: 0.7;
-  padding: 5px;
-  transition: opacity 0.2s;
-
-  &:hover {
-    opacity: 1;
-  }
-`;
-
-export const RightRail = styled.div`
-  position: absolute;
-  right: 24px;
-  top: 10%;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: auto;
-  align-items: flex-end;
-`;
-
-export const IconButton = styled.button<{ active?: boolean }>`
-  width: 60px;
-  height: 60px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 11;
-
-  background: ${({ active }) => (active ? '#326666' : '#FFFFFF')};
-  color: ${({ active }) => (active ? '#FFFFFF' : '#444444')};
-
-  font-size: 14px;
-  font-weight: 800;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  ${({ active }) =>
-    active &&
-    `
-    width: 90px;
-  `}
-
-  &:hover {
-    ${({ active }) => !active && 'background: #F5F5F5; transform: scale(1.05);'}
-  }
-`;
-
-export const BlueInfoPanel = styled.aside`
-  position: absolute;
-  right: 100px;
-  top: 34px;
-  z-index: 9;
+  left: 50%;
+  bottom: 70px;
+  transform: translateX(-50%);
 
   width: 320px;
-  height: calc(100vh - 150px);
+  pointer-events: auto;
+`;
 
-  background: #326666;
-  border-radius: 24px;
-  padding: 34px;
-  color: #ffffff;
-  box-shadow: -10px 20px 40px rgba(0, 0, 0, 0.3);
+export const Slider = styled.input.attrs({ type: 'range' })`
+  width: 100%;
+  height: 4px;
+
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+
+  &::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: rgba(90, 140, 220, 1);
+    cursor: pointer;
+  }
+`;
+
+/* =========================
+   BLUE INFO PANEL
+========================= */
+export const BlueInfoPanel = styled.aside`
+  position: absolute;
+  right: 40px;
+  top: 70px;
+  z-index: 9;
+
+  width: 340px;
+  height: calc(100vh - 200px);
+
+  background: rgba(30, 40, 60, 0.45);
+  backdrop-filter: blur(1px) saturate(400%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+
+  border-radius: 28px;
+  padding: 28px 28px 24px;
 
   display: flex;
   flex-direction: column;
   pointer-events: auto;
 
-  animation: subtleSlide 0.3s ease-out forwards;
+  border: 1px solid rgba(120, 160, 220, 0.22);
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.5),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
 
-  @keyframes subtleSlide {
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255,255,255,0.10),
+        rgba(255,255,255,0.02) 2%,
+        rgba(0,0,0,0.08)
+      );
+
+    pointer-events: none;
+  }
+
+  animation: panelIn 0.35s ease-out forwards;
+
+  @keyframes panelIn {
     from {
       opacity: 0;
-      transform: translateX(23px);
+      transform: translateX(24px);
     }
     to {
       opacity: 1;
@@ -333,142 +276,82 @@ export const BlueInfoPanel = styled.aside`
   }
 `;
 
-export const ActionButton = styled.button`
-  width: 100%;
-  padding: 16px;
-  margin-top: auto;
-  border-radius: 12px;
-  border: none;
-  background: #ffffff;
-  color: rgba(160, 255, 245, 0.28);
-  font-weight: 900;
-  cursor: pointer;
-`;
+
 
 export const PanelHeader = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  opacity: 0.8;
-  margin-bottom: 8px;
+  justify-content: space-between;
+
+  margin-bottom: 10px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: rgba(160, 190, 240, 0.6);
 `;
 
 export const PanelTitle = styled.h2`
-  font-size: 26px;
-  font-weight: 800;
-  margin: 0 0 20px 0;
-`;
-/*
-export const RailTabs = styled.div`
-  width: 86px;
-  height: 360px;
+  margin: 0 0 18px 0;
 
-  border-radius: 44px;
-  background: rgba(0, 0, 0, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+
+  color: rgba(245, 248, 255, 0.96);
+`;
+
+export const CloseButton = styled.button`
+  width: 28px;
+  height: 28px;
 
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 42px;
 
-  transition: all 220ms ease;
+  border-radius: 8px;
+  border: none;
 
-  &:hover {
-    border: 1px solid rgba(160, 255, 245, 0.18);
-    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.42);
-  }
-`;
+  background: rgba(120, 160, 220, 0.18);
+  color: rgba(210, 225, 255, 0.8);
 
-export const RailTab = styled.button<{ active?: boolean }>`
-  width: 100%;
-  border: 0;
-  background: transparent;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+
   cursor: pointer;
-
-  font-size: 16px;
-  font-weight: 900;
-
   transition: all 160ms ease;
 
-  color: ${({ active }) =>
-    active ? "rgba(70, 230, 215, 0.95)" : "rgba(255,255,255,0.9)"};
-
   &:hover {
-    color: rgba(70, 230, 215, 0.98);
-    transform: translateY(-1px);
-  }
-`;
-
-export const AIButton = styled.button`
-  width: 82px;
-  height: 82px;
-  border-radius: 999px;
-
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(0, 0, 0, 0.75);
-  cursor: pointer;
-
-  color: rgba(255, 255, 255, 0.92);
-  font-weight: 900;
-  font-size: 16px;
-
-  transition: all 180ms ease;
-
-  &:hover {
-    transform: translateY(-3px);
-    border: 1px solid rgba(70, 230, 215, 0.35);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    background: rgba(120, 160, 220, 0.32);
+    color: #ffffff;
   }
 
   &:active {
-    transform: translateY(0px);
-  }
-`;*/
-
-/*Bottom Slider*/
-export const ExplodeBox = styled.div`
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 64px;
-  z-index: 6;
-
-  width: 320px;
-  height: 22px;
-
-  display: flex;
-  align-items: center;
-
-  opacity: 0.95;
-  transition: all 180ms ease;
-
-  pointer-events: auto;
-
-  &:hover {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-1px);
+    transform: scale(0.94);
   }
 `;
 
-export const Slider = styled.input.attrs({ type: 'range' })`
-  width: 320px;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
-  outline: none;
+export const InfoBody = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
 
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 999px;
-    background: rgba(70, 230, 215, 0.95);
-    cursor: pointer;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.65;
+
+  color: rgba(225, 235, 255, 0.92);
+  white-space: pre-wrap;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(120, 160, 220, 0.45);
+    border-radius: 2px;
   }
 `;
