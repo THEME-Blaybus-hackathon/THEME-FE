@@ -1,62 +1,93 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import type { ThreeElements, ThreeEvent } from '@react-three/fiber';
+import type { ThreeElements } from '@react-three/fiber';
 
 type Props = ThreeElements['group'] & {
   explode?: number;
+  selectedMeshName: string | null;
 };
 
-export default function DroneModel({ explode = 0, ...props }: Props) {
+export default function DroneModel({
+  explode = 0,
+  selectedMeshName,
+  ...props
+}: Props) {
   const { scene } = useGLTF('/assets/models/Drone.glb');
+  const { camera } = useThree();
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
+
   const [hoveredName, setHoveredName] = useState<string | null>(null);
 
-  const EX_FACTOR = 7; // 드론 분해 배수
+  const cameraTargetRef = useRef<THREE.Vector3 | null>(null);
+  const defaultCameraPosRef = useRef<THREE.Vector3 | null>(null);
 
-  // 방향 계산
+  const EX_FACTOR = 7;
+
+  /** 🔹 분해 방향 */
   const getDir = (name: string): THREE.Vector3 => {
-    const dir = new THREE.Vector3(0, 0, 0);
+    const dir = new THREE.Vector3();
 
-    if (name.includes('Leg')) {
-      dir.set(0, -1, 0);
-    } else if (name.includes('Beater')) {
-      dir.set(0, 0, 1);
-    } else if (name.includes('Impellar')) {
-      dir.set(0, 1, 0);
-    } else if (name.includes('Nut') || name.includes('Gearing')) {
+    if (name.includes('Leg')) dir.set(0, -1, 0);
+    else if (name.includes('Beater')) dir.set(0, 0, 1);
+    else if (name.includes('Impeller')) dir.set(0, 1, 0);
+    else if (name.includes('Nut') || name.includes('Gearing'))
       dir.set(0, 0.75, 0);
-    } else if (name.includes('Arm')) {
+    else if (name.includes('Arm'))
       dir.set(name.includes('_1') || name.includes('_3') ? -0.5 : 0.5, 0, 0);
-    } else if (name.includes('Main')) {
+    else if (name.includes('Main'))
       dir.set(0, name.includes('001') ? -0.35 : 0.35, 0);
-    } else if (name.includes('Screw')) {
-      dir.set(0, -0.5, 0);
-    } else if (name.includes('Bearing')) {
-      dir.set(0, 0, 1);
-    }
+    else if (name.includes('Screw')) dir.set(0, -0.5, 0);
+
     return dir;
   };
 
+  /** 🔹 초기 위치 + 카메라 기본 위치 */
   useEffect(() => {
+    if (!defaultCameraPosRef.current) {
+      defaultCameraPosRef.current = camera.position.clone();
+    }
+
     scene.traverse((obj) => {
       if (!obj.name || initialPosRef.current[obj.name]) return;
 
       partsRef.current[obj.name] = obj;
+
       const dir = getDir(obj.name);
       const basePos = obj.position
         .clone()
         .sub(dir.multiplyScalar(explode * EX_FACTOR));
+
       initialPosRef.current[obj.name] = basePos;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
+  /** ✅ 외부에서 선택된 mesh 변경 시 카메라 전환 */
+  useEffect(() => {
+    if (!selectedMeshName) {
+      // 🔁 선택 해제 → 카메라 원위치
+      cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
+      return;
+    }
+
+    const targetObj = partsRef.current[selectedMeshName];
+    if (!targetObj) return;
+
+    const worldPos = new THREE.Vector3();
+    targetObj.getWorldPosition(worldPos);
+
+    cameraTargetRef.current = worldPos.clone().add(new THREE.Vector3(0, 3, 10));
+
+    console.log('🎥 카메라 포커스 대상:', selectedMeshName);
+  }, [selectedMeshName]);
+
+  /** 🔹 프레임 처리 */
   useFrame(() => {
     const hoverId = hoveredName?.split('_')[0];
+    const activeId = selectedMeshName?.split('_')[0];
 
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
@@ -64,27 +95,48 @@ export default function DroneModel({ explode = 0, ...props }: Props) {
 
       const dir = getDir(name);
       const target = base.clone().add(dir.multiplyScalar(explode * EX_FACTOR));
-
       obj.position.lerp(target, 0.1);
 
-      if (obj instanceof THREE.Mesh) {
-        const isHit = !!hoverId && name.startsWith(hoverId);
+      if (!(obj instanceof THREE.Mesh)) return;
 
-        const mat = obj.material as THREE.MeshStandardMaterial;
-        if (mat.emissive) {
-          mat.emissive.set(isHit ? '#00888d' : '#000000');
-          mat.emissiveIntensity = isHit ? 3 : 0;
-          mat.transparent = true;
-          mat.opacity = isHit ? 0.6 : 1.0;
-        }
+      const isActive = !!activeId && name.startsWith(activeId);
+      const isHover = !!hoverId && name.startsWith(hoverId);
+
+      const mat = obj.material as THREE.MeshStandardMaterial;
+      if (!mat?.emissive) return;
+
+      if (isActive) {
+        mat.emissive.set('#00e5ff');
+        mat.emissiveIntensity = 3.5;
+        mat.opacity = 0.65;
+      } else if (isHover) {
+        mat.emissive.set('#00888d');
+        mat.emissiveIntensity = 2.5;
+        mat.opacity = 0.7;
+      } else {
+        mat.emissive.set('#000000');
+        mat.emissiveIntensity = 0;
+        mat.opacity = 1;
       }
+
+      mat.transparent = true;
     });
+
+    // 🎥 카메라 이동
+    if (cameraTargetRef.current) {
+      camera.position.lerp(cameraTargetRef.current, 0.08);
+      camera.lookAt(0, 0, 0);
+
+      if (camera.position.distanceTo(cameraTargetRef.current) < 0.05) {
+        cameraTargetRef.current = null;
+      }
+    }
   });
 
   return (
     <group
       {...props}
-      onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+      onPointerOver={(e) => {
         e.stopPropagation();
         if (e.object.name) setHoveredName(e.object.name);
       }}

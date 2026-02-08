@@ -56,16 +56,8 @@ const FloatingImage = styled.img<{
 export default function ImageRotate() {
   return (
     <Wrapper>
-  
-      <FloatingImage
-        src={drone}
-        top="14%"
-        left="8%"
-        size={260}
-        delay={0}
-      />
+      <FloatingImage src={drone} top="14%" left="8%" size={260} delay={0} />
 
-    
       <FloatingImage
         src={suspension}
         bottom="10%"
@@ -74,16 +66,8 @@ export default function ImageRotate() {
         delay={1.2}
       />
 
-      
-      <FloatingImage
-        src={arm}
-        top="18%"
-        right="8%"
-        size={260}
-        delay={0.6}
-      />
+      <FloatingImage src={arm} top="18%" right="8%" size={260} delay={0.6} />
 
-    
       <FloatingImage
         src={gripper}
         bottom="12%"

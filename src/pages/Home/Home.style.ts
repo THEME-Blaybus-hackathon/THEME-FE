@@ -12,11 +12,7 @@ export const PageWrapper = styled.div`
       rgba(90, 120, 200, 0.35),
       rgba(0, 0, 0, 0) 60%
     ),
-    linear-gradient(
-      to bottom,
-      #0b1220,
-      #060b14
-    );
+    linear-gradient(to bottom, #0b1220, #060b14);
 `;
 
 export const HeroSection = styled.main`
@@ -54,14 +50,14 @@ export const HeroImage = styled.img`
 `;
 export const FrameWrapper = styled.div`
   position: absolute;
-  bottom: 0px;  // 하단에서 20px 위
+  bottom: 0px; // 하단에서 20px 위
   left: 50%;
   transform: translateX(-50%);
-  width: 300px;  // 이미지 크기 조정 가능
+  width: 300px; // 이미지 크기 조정 가능
   display: flex;
   justify-content: center;
   pointer-events: none; // 버튼과 겹쳐도 클릭 방지
-  opacity : 0.5;
+  opacity: 0.5;
 `;
 
 export const FrameImageStyled = styled.img`
@@ -84,7 +80,6 @@ export const CenterText = styled.div`
 export const Subtitle = styled.p`
   font-size: 15px;
   font-weight: 500;
-  
 
   color: rgba(200, 215, 255, 0.85);
 `;
@@ -93,8 +88,6 @@ export const Title = styled.h1`
   font-size: 42px;
   font-weight: 800;
   line-height: 1.25;
-  
-  
 
   color: #ffffff;
 `;

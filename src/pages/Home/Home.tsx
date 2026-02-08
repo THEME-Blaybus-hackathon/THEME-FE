@@ -1,10 +1,10 @@
 // Home.tsx
-import { useEffect} from 'react';
+import { useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import Header from '../../components/Header';
 import ImageRotate from './components/ImageRotate';
-import Homelogo from '../../assets/images/Homelogo.png'
-import Homeframe from '../../assets/images/Homeframe.png'
+import Homelogo from '../../assets/images/Homelogo.png';
+import Homeframe from '../../assets/images/Homeframe.png';
 import {
   PageWrapper,
   HeroSection,
@@ -16,7 +16,6 @@ import {
   HeroImage,
   FrameWrapper,
   FrameImageStyled,
-  
 } from './Home.style';
 import { useNavigate } from 'react-router-dom';
 
@@ -42,8 +41,7 @@ export default function Home() {
       <HeroSection>
         {/* 배경 워터마크 */}
         <Watermark>
-          <HeroImage
-            src = {Homelogo} />
+          <HeroImage src={Homelogo} />
         </Watermark>
 
         {/* 중앙 텍스트 */}
@@ -54,18 +52,13 @@ export default function Home() {
           <StudyButton onClick={() => navigate('/study')}>
             지금 바로 시작하기
           </StudyButton>
-
-        
-          
         </CenterText>
-
-        
       </HeroSection>
       {/* 회전 / 배치된 3D 모델 */}
       <ImageRotate />
       <FrameWrapper>
-    <FrameImageStyled src={Homeframe} alt="Home Frame" />
-  </FrameWrapper>
+        <FrameImageStyled src={Homeframe} alt="Home Frame" />
+      </FrameWrapper>
     </PageWrapper>
   );
 }
