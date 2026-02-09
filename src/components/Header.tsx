@@ -44,9 +44,9 @@ export default function Header() {
 
       <Center>
         <NavItem onClick={() => navigate('/study')}>스터디</NavItem>
-        <NavItem onClick={() => navigate('/quiz')}>퀴즈</NavItem>
+        {/* <NavItem onClick={() => navigate('/quiz')}>퀴즈</NavItem>
         <NavItem onClick={() => navigate('/workflow')}>워크플로우</NavItem>
-        <NavItem onClick={() => navigate('/my-study')}>My Study</NavItem>
+        <NavItem onClick={() => navigate('/my-study')}>My Study</NavItem> */}
       </Center>
 
       <Right>
