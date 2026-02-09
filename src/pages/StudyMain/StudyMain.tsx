@@ -10,12 +10,11 @@ import DroneModel from "./components/models/DroneModel";
 import RobotArmModel from "./components/models/RobotArmModel";
 import RobotGripperModel from "./components/models/RobotGripperModel";
 import SuspensionModel from "./components/models/SuspensionModel";
-import modelIcon from '../../assets/images/Info.svg';
-import partIcon from '../../assets/images/part.svg';
-import noteIcon from '../../assets/images/note.svg';
-import aiIcon from '../../assets/images/ai.svg';
-import Header from '../../components/Header';
-
+import modelIcon from "../../assets/images/Info.svg";
+import partIcon from "../../assets/images/part.svg";
+import noteIcon from "../../assets/images/note.svg";
+import aiIcon from "../../assets/images/ai.svg";
+import Header from "../../components/Header";
 
 import BlueInfoPanel from "./components/panels/BlueInfoPanel";
 import { PANEL_MAP } from "./components/panelMap";
@@ -71,7 +70,7 @@ import {
   TopRail,
   ClickableIcon,
   RightControls,
-} from './StudyMain.style';
+} from "./StudyMain.style";
 
 type GridGuideProps = {
   size?: number;
@@ -279,7 +278,6 @@ export default function StudyMain() {
               {renderAIPanels()}
 
               <TopRail>
-
                 {["MODEL", "PARTS", "NOTES"].map((tab) => (
                   <IconButton
                     key={tab}
@@ -293,7 +291,6 @@ export default function StudyMain() {
                         : "노트"}
                   </IconButton>
                 ))}
-
               </TopRail>
 
               <RightBottomRail>
@@ -311,7 +308,6 @@ export default function StudyMain() {
                 >
                   🎓 AI
                 </IconButton>
-
               </RightBottomRail>
               <RightControls>
                 <DownloadButton>⬇</DownloadButton>

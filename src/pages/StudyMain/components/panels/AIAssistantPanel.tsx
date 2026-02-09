@@ -38,13 +38,14 @@ const AIAvatar = () => (
 const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
-  // ✅ 사이드바 열림/닫힘 상태 추가
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: history, isLoading } = useAIHistory(sessionId);
   const { mutate: ask, isPending } = useAskAI();
   const { mutate: deleteSession } = useDeleteSession();
+
+  const [lastSentMessage, setLastSentMessage] = useState("");
 
   const [sessionList, setSessionList] = useState<SavedSession[]>(() => {
     const saved =
@@ -68,16 +69,15 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
     setSessionList(newList);
     localStorage.setItem("ai_chat_sessions", JSON.stringify(newList));
   };
-
   const handleSend = (e?: React.MouseEvent | React.FormEvent) => {
     if (e) {
-      e.stopPropagation();
       if ("preventDefault" in e) e.preventDefault();
     }
 
     if (!input.trim() || isPending) return;
 
     const currentInput = input;
+    setLastSentMessage(currentInput);
     setInput("");
 
     ask(
@@ -89,15 +89,11 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       },
       {
         onSuccess: (res) => {
+          setLastSentMessage("");
           if (!sessionId && res.sessionId) {
             setSessionId(res.sessionId);
             saveSessionToList(res.sessionId, currentInput);
           }
-        },
-        onError: (err) => {
-          console.error("AI 요청 실패:", err);
-          setInput(currentInput);
-          alert("메시지 전송에 실패했습니다. (권한 에러일 수 있습니다.)");
         },
       },
     );
@@ -130,7 +126,7 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       style={{
         display: "flex",
         height: "550px",
-        width: isSidebarOpen ? "500px" : "350px", // 사이드바가 열릴 때 전체 너비 확장
+        width: isSidebarOpen ? "550px" : "380px", // 사이드바가 열릴 때 전체 너비 확장
         borderRadius: "24px",
         overflow: "hidden",
         border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -148,7 +144,7 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       {/* ⬅️ 왼쪽: 세션 리스트 사이드바 (아코디언 기능) */}
       <div
         style={{
-          width: isSidebarOpen ? "250px" : "0px",
+          width: isSidebarOpen ? "220px" : "0px",
           backgroundColor: "rgba(0, 0, 0, 0.2)",
           borderRight: isSidebarOpen
             ? "1px solid rgba(255, 255, 255, 0.1)"
@@ -160,7 +156,7 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
           flexShrink: 0,
         }}
       >
-        <div style={{ padding: "20px", minWidth: "250px" }}>
+        <div style={{ padding: "20px", minWidth: "220px" }}>
           <button
             onClick={handleNewChat}
             style={{
@@ -184,7 +180,7 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
             flex: 1,
             overflowY: "auto",
             padding: "0 12px 20px",
-            minWidth: "250px",
+            minWidth: "220px",
           }}
         >
           <div
@@ -197,62 +193,66 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
           >
             최근 대화 목록
           </div>
-          {sessionList.map((s) => (
-            <div
-              key={s.sessionId}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSessionId(s.sessionId);
-              }}
-              style={{
-                padding: "12px",
-                borderRadius: "12px",
-                marginBottom: "8px",
-                backgroundColor:
-                  sessionId === s.sessionId
-                    ? "rgba(255, 255, 255, 0.15)"
-                    : "transparent",
-                cursor: "pointer",
-                position: "relative",
-                border:
-                  sessionId === s.sessionId
-                    ? "1px solid rgba(255,255,255,0.2)"
-                    : "1px solid transparent",
-                transition: "all 0.2s",
-              }}
-            >
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {sessionList.map((s) => (
               <div
-                style={{
-                  fontSize: "13px",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  paddingRight: "20px",
+                key={s.sessionId}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSessionId(s.sessionId);
                 }}
-              >
-                {s.title}
-              </div>
-              <div style={{ fontSize: "10px", opacity: 0.4, marginTop: "4px" }}>
-                {s.objectName} · {new Date(s.timestamp).toLocaleDateString()}
-              </div>
-              <button
-                onClick={(e) => handleDeleteSession(s.sessionId, e)}
                 style={{
-                  position: "absolute",
-                  right: "8px",
-                  top: "14px",
-                  background: "none",
-                  border: "none",
-                  color: "white",
-                  opacity: 0.3,
+                  padding: "12px",
+                  borderRadius: "12px",
+                  marginBottom: "8px",
+                  backgroundColor:
+                    sessionId === s.sessionId
+                      ? "rgba(255, 255, 255, 0.15)"
+                      : "transparent",
                   cursor: "pointer",
-                  fontSize: "10px",
+                  position: "relative",
+                  border:
+                    sessionId === s.sessionId
+                      ? "1px solid rgba(255,255,255,0.2)"
+                      : "1px solid transparent",
+                  transition: "all 0.2s",
                 }}
               >
-                ✕
-              </button>
-            </div>
-          ))}
+                <div
+                  style={{
+                    fontSize: "13px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    paddingRight: "20px",
+                  }}
+                >
+                  {s.title}
+                </div>
+                <div
+                  style={{ fontSize: "10px", opacity: 0.4, marginTop: "4px" }}
+                >
+                  {s.objectName} · {new Date(s.timestamp).toLocaleDateString()}
+                </div>
+                <button
+                  onClick={(e) => handleDeleteSession(s.sessionId, e)}
+                  style={{
+                    position: "absolute",
+                    right: "8px",
+                    top: "14px",
+                    background: "none",
+                    border: "none",
+                    color: "white",
+                    opacity: 0.3,
+                    cursor: "pointer",
+                    fontSize: "10px",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -360,18 +360,22 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
                 </div>
               </div>
             )}
-
+          {/* 1. 기존 대화 목록 */}
           {history?.messages.map((msg: any) => {
-            const isUser = msg.role === "USER";
+            // ✅ role 확인: 콘솔에서 보셨을 때 대문자면 "USER", 소문자면 "user"
+            const isUser = msg.role === "USER" || msg.role === "user";
             return (
               <div
                 key={msg.id}
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: isUser ? "flex-end" : "flex-start",
+                  alignItems: isUser ? "flex-end" : "flex-start", // 사용자면 오른쪽
+                  width: "100%",
+                  marginBottom: "15px",
                 }}
               >
+                {/* AI일 때만 아바타 표시 */}
                 {!isUser && (
                   <div
                     style={{
@@ -387,6 +391,7 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
                     </span>
                   </div>
                 )}
+
                 <div
                   style={{
                     backgroundColor: isUser
@@ -396,10 +401,9 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
                     borderRadius: isUser
                       ? "16px 16px 2px 16px"
                       : "2px 16px 16px 16px",
-                    fontSize: "13.5px",
+                    alignSelf: isUser ? "flex-end" : "flex-start", // 확정 정렬
                     maxWidth: "85%",
-                    lineHeight: "1.5",
-                    wordBreak: "break-word",
+                    fontSize: "13.5px",
                   }}
                 >
                   {isUser ? msg.content : msg.answer || msg.content}
@@ -408,6 +412,34 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
             );
           })}
 
+          {/* ✅ 2. 추가: 답변 기다리는 동안 내 질문 즉시 보여주기 */}
+          {isPending && lastSentMessage && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                width: "100%",
+                marginBottom: "15px",
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "#2F54EB",
+                  padding: "10px 14px",
+                  borderRadius: "16px 16px 2px 16px",
+                  alignSelf: "flex-end",
+                  maxWidth: "85%",
+                  fontSize: "13.5px",
+                  color: "white",
+                }}
+              >
+                {lastSentMessage}
+              </div>
+            </div>
+          )}
+
+          {/* 3. AI 분석 중... 로딩 표시 */}
           {isPending && (
             <div
               style={{
