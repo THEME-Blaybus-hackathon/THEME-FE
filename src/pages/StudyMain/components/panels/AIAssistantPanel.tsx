@@ -128,16 +128,17 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       style={{
+        position: "relative",
         display: "flex",
         height: "550px",
         width: isSidebarOpen ? "500px" : "350px", // 사이드바가 열릴 때 전체 너비 확장
         borderRadius: "24px",
         overflow: "hidden",
-        border: "1px solid rgba(255, 255, 255, 0.2)",
+        border: "1px solid rgba(255, 255, 255, 0)",
         color: "white",
         boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
         background:
-          "linear-gradient(135deg, rgba(80, 95, 138, 0.8) 0%, rgba(121, 137, 185, 0.7) 100%)",
+          "linear-gradient(135deg, #5868CD30 0%, #DFE2E54D 100%)",
         backdropFilter: "blur(15px)",
         fontFamily: "sans-serif",
         zIndex: 1000,
@@ -148,13 +149,16 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       {/* ⬅️ 왼쪽: 세션 리스트 사이드바 (아코디언 기능) */}
       <div
         style={{
-          width: isSidebarOpen ? "250px" : "0px",
+          width: isSidebarOpen ? "230px" : "0px",
           backgroundColor: "rgba(0, 0, 0, 0.2)",
           borderRight: isSidebarOpen
-            ? "1px solid rgba(255, 255, 255, 0.1)"
+            ? "1px solid rgba(255, 255, 255, 0)"
             : "none",
           display: "flex",
           flexDirection: "column",
+          transform: isSidebarOpen
+      ? "translateX(0%)"
+      : "translateX(100%)", 
           transition: "all 0.4s ease",
           overflow: "hidden", // 닫혔을 때 내용물 숨김
           flexShrink: 0,
@@ -259,10 +263,12 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       {/* ➡️ 오른쪽: 메인 채팅 영역 */}
       <div
         style={{
+          position:"relative",
           flex: 1,
           display: "flex",
           flexDirection: "column",
           minWidth: 0,
+          zIndex: 1,
         }}
       >
         {/* 헤더 */}
