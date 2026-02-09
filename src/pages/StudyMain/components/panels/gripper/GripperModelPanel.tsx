@@ -1,8 +1,26 @@
 // components/panels/gripper/GripperModelPanel.tsx
-
+import GripperSvg from '../../../../../assets/images/gripper.svg';
 export default function GripperModelPanel() {
   return (
     <>
+    <div
+        style={{
+          width: '100%',
+          height: 160,
+          marginBottom: 16,
+        }}
+      >
+        <img
+          src={GripperSvg}
+          alt="Robot Arm"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
+      </div>
       <p>
         본 그리퍼 모델은 로봇 암의 엔드 이펙터로 사용되는
         정밀 파지용 그리퍼 시스템입니다.

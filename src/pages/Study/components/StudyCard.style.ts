@@ -2,52 +2,49 @@ import styled from 'styled-components';
 
 export const Card = styled.div`
   position: relative;
+  height: 240px;
+  padding: 20px 16px 16px;
+
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  width: 280px;
-  height: 220px;
-  padding: 16px;
-  flex-shrink: 0;
 
-  border-radius: 16px;
+  border-radius: 18px;
   cursor: pointer;
 
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
 
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.15);
 
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+  transition: all 0.25s ease;
 
   &:hover {
     transform: translateY(-6px);
-    box-shadow: 0 18px 48px ${({ theme }) => theme.colors.primary}80;
+    border-color: rgba(90, 130, 500, 0.9);
+    box-shadow: 0 16px 48px ${({ theme }) => theme.colors.primary}55;
   }
 `;
 
 export const Tag = styled.div`
   position: absolute;
-  top: -10px;
+  top: -12px;
   left: 16px;
 
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
 
   font-size: 12px;
   font-weight: 600;
 
-  background: ${({ theme }) => theme.colors.primary};
-  color: #e6fffa;
+  background: rgba(90, 130, 255, 0.9);
+  color: #ffff;
 `;
 
 export const ImageWrapper = styled.div`
   width: 100%;
-  height: 130px;
+  height: 140px;
 
   display: flex;
   align-items: center;
@@ -57,13 +54,12 @@ export const ImageWrapper = styled.div`
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
   }
 `;
 
 export const Description = styled.p`
-  margin-top: 12px;
-
   font-size: 13px;
-  color: #d1d5db;
+  color: #94a3b8;
   text-align: center;
 `;

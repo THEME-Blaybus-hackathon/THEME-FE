@@ -2,9 +2,9 @@
 import styled, { keyframes } from 'styled-components';
 
 import drone from '../../../assets/images/drone.svg';
-import suspension from '../../../assets/images/suspension.svg';
+import suspension from '../../../assets/images/suspension1.svg';
 import arm from '../../../assets/images/arm.svg';
-import gripper from '../../../assets/images/gripper.svg';
+import gripper from '../../../assets/images/gripper1.svg';
 
 //부유 애니메이션
 const float = keyframes`

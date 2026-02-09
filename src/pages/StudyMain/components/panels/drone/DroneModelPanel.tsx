@@ -1,8 +1,26 @@
 // components/panels/drone/DroneModelPanel.tsx
-
+import DroneSvg from '../../../../../assets/images/drone.svg';
 export default function DroneModelPanel() {
   return (
     <>
+    <div
+        style={{
+          width: '100%',
+          height: 160,
+          marginBottom: 16,
+        }}
+      >
+        <img
+          src={DroneSvg}
+          alt="Robot Arm"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
+      </div>
       <p>
         본 드론 모델은 고기동성 멀티로터 구조를 기반으로 설계된 산업·연구용
         UAV입니다. 안정적인 비행 성능과 모듈화된 구조를 통해 다양한 환경에서의

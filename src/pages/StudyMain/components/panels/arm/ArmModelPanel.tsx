@@ -1,8 +1,27 @@
 // components/panels/arm/ArmModelPanel.tsx
-
+import ArmSvg from '../../../../../assets/images/arm.svg';
 export default function ArmModelPanel() {
   return (
     <>
+    <div
+        style={{
+          width: '100%',
+          height: 160,
+          marginBottom: 16,
+        }}
+      >
+        <img
+          src={ArmSvg}
+          alt="Robot Arm"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            opacity: 0.9,
+          }}
+        />
+      </div>
+
       <p>
         본 로봇 암 모델은 정밀 작업을 위해 설계된 6축 산업용 로봇 암으로,
         다관절 구조를 통해 복잡한 공간에서도 유연한 움직임을 구현할 수 있습니다.
