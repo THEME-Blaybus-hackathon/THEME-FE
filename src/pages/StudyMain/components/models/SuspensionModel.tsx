@@ -3,11 +3,52 @@ import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { ThreeElements, ThreeEvent } from '@react-three/fiber';
+import PartTooltip from './PartTooltip';
 
 type Props = ThreeElements['group'] & {
   explode?: number;
   selectedMeshName: string | null;
 };
+
+/* =========================
+ * 파트 설명
+ * ========================= */
+const PART_DESCRIPTION_MAP: Record<string, string> = {
+  'Coil Spring': '충격을 흡수하고 복원력을 제공하는 코일 스프링입니다.',
+  'Shock Rod': '서스펜션의 상하 움직임을 전달하는 로드입니다.',
+  'Lock Nut': '부품을 고정하여 풀림을 방지하는 너트입니다.',
+  Base: '서스펜션 전체를 지지하는 하부 베이스입니다.',
+  'Fixing Pin': '부품을 고정하는 핀 형태의 결합 요소입니다.',
+};
+
+/* =========================
+ * meshName → tooltip title 매핑
+ * ========================= */
+const PART_TITLE_MATCHERS: {
+  match: (meshName: string) => boolean;
+  title: string;
+}[] = [
+  {
+    match: (name) => name.includes('Spring'),
+    title: 'Coil Spring',
+  },
+  {
+    match: (name) => name.includes('Rod'),
+    title: 'Shock Rod',
+  },
+  {
+    match: (name) => name.includes('Nut') || name.includes('Nit'),
+    title: 'Lock Nut',
+  },
+  {
+    match: (name) => name.includes('Base'),
+    title: 'Suspension Base',
+  },
+  {
+    match: (name) => name.includes('Solid1'),
+    title: 'Fixing Pin',
+  },
+];
 
 export default function SuspensionModel({
   explode = 0,
@@ -24,9 +65,14 @@ export default function SuspensionModel({
 
   const cameraTargetRef = useRef<THREE.Vector3 | null>(null);
   const defaultCameraPosRef = useRef<THREE.Vector3 | null>(null);
-
+  const lastCameraPosRef = useRef<THREE.Vector3 | null>(null);
+  const logTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastExplodeRef = useRef<number>(explode);
   const EX_FACTOR = 7;
 
+  /* =========================
+   * explode 방향
+   * ========================= */
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3();
 
@@ -39,48 +85,68 @@ export default function SuspensionModel({
     return dir;
   };
 
+  /* =========================
+   * 선택된 파트 매칭
+   * ========================= */
   const matchBySelectedName = (
     selected: string | null,
     meshName: string,
   ): boolean => {
     if (!selected) return false;
 
-    switch (selected) {
-      case 'Coil Spring':
-        return meshName.includes('Spring');
-
-      case 'Shock Rod':
-        return meshName.includes('Rod');
-
-      case 'Lock Nut':
-        return meshName.includes('Nut') || meshName.includes('Nit');
-
-      case 'Base':
-        return meshName.includes('Base');
-
-      case 'Fixing Pin':
-        return meshName.includes('Solid1');
-
-      default:
-        return false;
-    }
+    return PART_TITLE_MATCHERS.some(
+      ({ title, match }) => title === selected && match(meshName),
+    );
   };
 
+  const getHoveredPartTitle = () => {
+    if (!hoveredName) return null;
+
+    const matcher = PART_TITLE_MATCHERS.find(({ match }) => match(hoveredName));
+
+    return matcher?.title ?? null;
+  };
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('Suspension');
+    if (!saved) return;
+
+    try {
+      const data = JSON.parse(saved);
+
+      if (data.camera) {
+        camera.position.set(data.camera.x, data.camera.y, data.camera.z);
+        camera.lookAt(0, 0, 0);
+        lastCameraPosRef.current = camera.position.clone();
+      }
+
+      if (typeof data.zoom === 'number') {
+        const dir = camera.position.clone().normalize();
+        camera.position.copy(dir.multiplyScalar(data.zoom));
+      }
+
+      // 자동 카메라 비활성화
+      isAutoCameraRef.current = false;
+      cameraTargetRef.current = null;
+
+      console.log('♻️ Camera & zoom restored from sessionStorage');
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  /* =========================
+   * 초기화
+   * ========================= */
   useEffect(() => {
     if (!defaultCameraPosRef.current) {
       defaultCameraPosRef.current = camera.position.clone();
     }
 
-    const names: string[] = [];
-
     scene.traverse((obj) => {
       if (!obj.name || initialPosRef.current[obj.name]) return;
 
       partsRef.current[obj.name] = obj;
-
-      if (obj instanceof THREE.Mesh) {
-        names.push(obj.name);
-      }
 
       const dir = getDir(obj.name);
       const basePos = obj.position
@@ -89,21 +155,11 @@ export default function SuspensionModel({
 
       initialPosRef.current[obj.name] = basePos;
     });
-
-    console.log('🧩 Suspension GLB Mesh Parts:', names);
   }, [scene, explode]);
 
-  useEffect(() => {
-    if (!hoveredName) return;
-
-    const matched = Object.keys(partsRef.current).filter((name) =>
-      matchBySelectedName(hoveredName, name),
-    );
-
-    console.log('🟢 Hover:', hoveredName);
-    console.log('📦 매칭된 mesh 목록:', matched);
-  }, [hoveredName]);
-
+  /* =========================
+   * 카메라 이동
+   * ========================= */
   useEffect(() => {
     if (!selectedMeshName) {
       cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
@@ -114,7 +170,7 @@ export default function SuspensionModel({
       matchBySelectedName(selectedMeshName, obj.name),
     );
 
-    if (targets.length === 0) return;
+    if (!targets.length) return;
 
     const center = new THREE.Vector3();
     targets.forEach((obj) => {
@@ -125,15 +181,61 @@ export default function SuspensionModel({
     center.divideScalar(targets.length);
 
     cameraTargetRef.current = center.clone().add(new THREE.Vector3(0, 3, 10));
-
-    console.log('🎥 선택된 Suspension 파트:', selectedMeshName);
-    console.log(
-      '📦 매칭 mesh:',
-      targets.map((t) => t.name),
-    );
   }, [selectedMeshName]);
 
+  /* =========================
+   * 프레임 루프
+   * ========================= */
   useFrame(() => {
+    const currentCameraPos = camera.position.clone();
+
+    // 최초 프레임 초기화
+    if (!lastCameraPosRef.current) {
+      lastCameraPosRef.current = currentCameraPos;
+      lastExplodeRef.current = explode;
+      return;
+    }
+
+    const cameraMoved =
+      currentCameraPos.distanceTo(lastCameraPosRef.current) > 0.001;
+
+    const explodeChanged = Math.abs(explode - lastExplodeRef.current) > 0.0001;
+
+    const somethingMoved = cameraMoved || explodeChanged;
+
+    if (somethingMoved) {
+      // 최신 상태 갱신
+      lastCameraPosRef.current.copy(currentCameraPos);
+      lastExplodeRef.current = explode;
+
+      // 기존 예약 취소
+      if (logTimeoutRef.current) {
+        clearTimeout(logTimeoutRef.current);
+      }
+
+      // ⏱️ 멈춘 뒤 1초 후 실행
+      logTimeoutRef.current = setTimeout(() => {
+        const zoomDistance = camera.position.distanceTo(
+          new THREE.Vector3(0, 0, 0),
+        );
+
+        const payload = {
+          explode: Number(explode.toFixed(3)),
+          camera: {
+            x: Number(camera.position.x.toFixed(3)),
+            y: Number(camera.position.y.toFixed(3)),
+            z: Number(camera.position.z.toFixed(3)),
+          },
+          zoom: Number(zoomDistance.toFixed(3)),
+          timestamp: Date.now(),
+        };
+
+        console.log('🛑 Scene stabilized → saved to sessionStorage');
+        console.log(payload);
+
+        sessionStorage.setItem('Suspension', JSON.stringify(payload));
+      }, 10);
+    }
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
       if (!base) return;
@@ -145,7 +247,8 @@ export default function SuspensionModel({
       if (!(obj instanceof THREE.Mesh)) return;
 
       const isActive = matchBySelectedName(selectedMeshName, name);
-      const isHover = matchBySelectedName(hoveredName, name);
+      const isHover =
+        hoveredName && matchBySelectedName(getHoveredPartTitle(), name);
 
       const mat = obj.material as THREE.MeshStandardMaterial;
       if (!mat?.emissive) return;
@@ -155,11 +258,11 @@ export default function SuspensionModel({
         mat.emissiveIntensity = 3.5;
         mat.opacity = 0.65;
       } else if (isHover) {
-        mat.emissive.set('#00888d');
-        mat.emissiveIntensity = 2.5;
-        mat.opacity = 0.7;
+        mat.emissive.set('#00bcd4');
+        mat.emissiveIntensity = 2.8;
+        mat.opacity = 0.8;
       } else {
-        mat.emissive.set('#000000');
+        mat.emissive.set('#000');
         mat.emissiveIntensity = 0;
         mat.opacity = 1;
       }
@@ -177,16 +280,51 @@ export default function SuspensionModel({
     }
   });
 
+  /* =========================
+   * 툴팁 위치 계산
+   * ========================= */
+  const hoveredPartTitle = getHoveredPartTitle();
+  const hoveredObj = hoveredName ? partsRef.current[hoveredName] : null;
+
+  const tooltipPos = hoveredObj
+    ? (() => {
+        const v = new THREE.Vector3();
+        hoveredObj.getWorldPosition(v);
+        return v;
+      })()
+    : null;
+
   return (
     <group
       {...props}
       onPointerOver={(e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation();
-        if (e.object.name) setHoveredName(e.object.name);
+        if (!e.object.name) return;
+
+        setHoveredName(e.object.name);
+
+        const title = PART_TITLE_MATCHERS.find(({ match }) =>
+          match(e.object.name),
+        )?.title;
+
+        console.log('🖱️ Hover mesh:', e.object.name);
+        if (title) {
+          console.log('📦 Hover part:', title);
+          console.log('📝 Description:', PART_DESCRIPTION_MAP[title]);
+        }
       }}
       onPointerOut={() => setHoveredName(null)}
     >
       <primitive object={scene} />
+
+      {/* ===== Tooltip Component ===== */}
+      {hoveredPartTitle && tooltipPos && (
+        <PartTooltip
+          position={tooltipPos}
+          title={hoveredPartTitle}
+          description={PART_DESCRIPTION_MAP[hoveredPartTitle]}
+        />
+      )}
     </group>
   );
 }

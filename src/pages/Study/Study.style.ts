@@ -35,9 +35,10 @@ export const Explan = styled.p`
 export const CardWrapper = styled.div`
   flex: 1;
   width: 100%;
+  height: 50%;
   padding: 32px 80px 64px;
+  display: flex;
+  flex-direction: row;
 
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 36px;
 `;

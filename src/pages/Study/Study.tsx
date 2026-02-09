@@ -24,18 +24,6 @@ const CATEGORY_MAP: Record<string, StudyCardMeta> = {
     image: '/assets/models/drone.png',
     model: 'Drone',
   },
-  leaf_spring: {
-    title: 'Leaf Spring',
-    description: 'Leaf Spring 3D 모델입니다.',
-    image: '/assets/models/leaf-spring.png',
-    model: 'Suspension',
-  },
-  machine_vice: {
-    title: 'Machine Vice',
-    description: 'Machine Vice 3D 모델입니다.',
-    image: '/assets/models/machine-vice.png',
-    model: 'Gripper',
-  },
   robot_arm: {
     title: 'Robot Arm',
     description: 'Robot Arm 3D 모델입니다.',
@@ -53,12 +41,6 @@ const CATEGORY_MAP: Record<string, StudyCardMeta> = {
     description: 'Suspension 구조 모델입니다.',
     image: '/assets/models/suspension.png',
     model: 'Suspension',
-  },
-  v4_engine: {
-    title: 'V4 Engine',
-    description: 'V4 Engine 구조 모델입니다.',
-    image: '/assets/models/v4-engine.png',
-    model: 'Engine',
   },
 };
 
