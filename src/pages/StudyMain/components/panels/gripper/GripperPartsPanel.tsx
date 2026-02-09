@@ -19,7 +19,7 @@ export default function GripperPartsPanel({
   selectedMeshName,
   onSelectMesh,
 }: Props) {
-  const { data, isLoading, error } = useObjects('robot_gripper');
+  const { data, isLoading, error } = useObjects('gripper');
   const [openPartId, setOpenPartId] = useState<string | null>(null);
   const { data: selectedPart } = useObject(openPartId ?? '');
 

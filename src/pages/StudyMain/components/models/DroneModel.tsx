@@ -97,7 +97,7 @@ export default function DroneModel({
   };
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('Drone');
+    const saved = sessionStorage.getItem('drone');
     if (!saved) return;
 
     try {
@@ -216,7 +216,7 @@ export default function DroneModel({
         console.log('🛑 Scene stabilized → saved to sessionStorage');
         console.log(payload);
 
-        sessionStorage.setItem('Drone', JSON.stringify(payload));
+        sessionStorage.setItem('drone', JSON.stringify(payload));
       }, 10);
     }
     Object.entries(partsRef.current).forEach(([name, obj]) => {

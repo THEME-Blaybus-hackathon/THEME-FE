@@ -1,2 +1,2 @@
-export type ModelType = "Drone" | "Arm" | "Gripper" | "Suspension";
-export type PanelTab = "MODEL" | "PARTS" | "NOTES" ;
+export type ModelType = 'drone' | 'arm' | 'gripper' | 'suspension';
+export type PanelTab = 'MODEL' | 'PARTS' | 'NOTES';

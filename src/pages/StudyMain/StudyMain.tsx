@@ -19,17 +19,16 @@ import AIPanel from './components/panels/AIAssistantPanel'; // ✅ 추가
 
 import Header from '../../components/Header';
 
-import type { ModelType, PanelTab } from "../../types/model";
-import { useObjectCategories } from "../../api/model/queries";
-import { CATEGORY_MAP } from "./constants/categoryMap";
-import ModelSelectSkeleton from "./components/ModelSelectSkeleton";
-import SessionListPanel from "./components/panels/SessionListPanel";
+import type { ModelType, PanelTab } from '../../types/model';
+import { useObjectCategories } from '../../api/model/queries';
+import { CATEGORY_MAP } from './constants/categoryMap';
+import ModelSelectSkeleton from './components/ModelSelectSkeleton';
+import SessionListPanel from './components/panels/SessionListPanel';
 
-import { useDownloadPDF } from "../../api/pdf/queries"; // 경로 확인 필요
-import type { PDFDownloadRequest } from "../../api/pdf/pdf";
+import { useDownloadPDF } from '../../api/pdf/queries'; // 경로 확인 필요
+import type { PDFDownloadRequest } from '../../api/pdf/pdf';
 import BlueInfoPanel from './components/panels/BlueInfoPanel';
 import { PANEL_MAP } from './components/panelMap';
-
 
 type ModelRenderConfig = {
   Component: React.FC<{ explode: number }>;
@@ -38,25 +37,25 @@ type ModelRenderConfig = {
 };
 
 const MODEL_RENDER_MAP: Record<ModelType, ModelRenderConfig> = {
-  Drone: {
+  drone: {
     Component: DroneModel,
     scale: [1.2, 1.2, 1.2],
-    explodeKey: 'Drone',
+    explodeKey: 'drone',
   },
-  Arm: {
+  arm: {
     Component: RobotArmModel,
     scale: [0.35, 0.35, 0.35],
-    explodeKey: 'Arm',
+    explodeKey: 'arm',
   },
-  Gripper: {
+  gripper: {
     Component: RobotGripperModel,
     scale: [1.3, 1.3, 1.3],
-    explodeKey: 'Gripper',
+    explodeKey: 'gripper',
   },
-  Suspension: {
+  suspension: {
     Component: SuspensionModel,
     scale: [1.2, 1.2, 1.2],
-    explodeKey: 'Suspension',
+    explodeKey: 'suspension',
   },
 };
 
@@ -111,7 +110,7 @@ export function GridGuide({
 
 export default function StudyMain() {
   const location = useLocation();
-  const initialModel = (location.state as { model?: string })?.model ?? 'Drone';
+  const initialModel = (location.state as { model?: string })?.model ?? 'drone';
 
   const [selectedModel, setSelectedModel] = useState<ModelType>(
     initialModel as ModelType,
@@ -132,10 +131,10 @@ export default function StudyMain() {
     }
 
     return {
-      Drone: 0,
-      Arm: 0,
-      Gripper: 0,
-      Suspension: 0,
+      drone: 0,
+      arm: 0,
+      gripper: 0,
+      suspension: 0,
     };
   });
 
@@ -317,7 +316,10 @@ export default function StudyMain() {
                 />
                 <AIPanelWrapper>
                   {aiPanelOpen && (
-                    <AIPanel onClose={() => setAiPanelOpen(false)} />
+                    <AIPanel
+                      objectName={selectedModel}
+                      onClose={() => setAiPanelOpen(false)}
+                    />
                   )}
                 </AIPanelWrapper>
               </RightBottomRail>
@@ -326,7 +328,7 @@ export default function StudyMain() {
                 {showSessionList && (
                   <SessionListPanel
                     sessions={JSON.parse(
-                      localStorage.getItem("ai_chat_sessions") || "[]",
+                      localStorage.getItem('ai_chat_sessions') || '[]',
                     ).filter(
                       (s: any) =>
                         s.objectName.toLowerCase() ===
@@ -341,7 +343,7 @@ export default function StudyMain() {
                 {/* 1번: 고정된 다운로드 버튼 (오른쪽 끝) */}
                 <DownloadButton
                   onClick={handleDownloadClick}
-                  style={{ cursor: "pointer", flexShrink: 0 }}
+                  style={{ cursor: 'pointer', flexShrink: 0 }}
                 >
                   ⬇
                 </DownloadButton>

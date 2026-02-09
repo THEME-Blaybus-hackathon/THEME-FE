@@ -60,9 +60,9 @@ export default function SuspensionModel({
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
-
+  const originalScaleRef = useRef<Record<string, THREE.Vector3>>({});
   const [hoveredName, setHoveredName] = useState<string | null>(null);
-
+  const isAutoCameraRef = useRef(false);
   const cameraTargetRef = useRef<THREE.Vector3 | null>(null);
   const defaultCameraPosRef = useRef<THREE.Vector3 | null>(null);
   const lastCameraPosRef = useRef<THREE.Vector3 | null>(null);
@@ -108,7 +108,7 @@ export default function SuspensionModel({
   };
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('Suspension');
+    const saved = sessionStorage.getItem('suspension');
     if (!saved) return;
 
     try {
@@ -139,23 +139,14 @@ export default function SuspensionModel({
    * 초기화
    * ========================= */
   useEffect(() => {
-    if (!defaultCameraPosRef.current) {
-      defaultCameraPosRef.current = camera.position.clone();
-    }
-
     scene.traverse((obj) => {
       if (!obj.name || initialPosRef.current[obj.name]) return;
 
       partsRef.current[obj.name] = obj;
-
-      const dir = getDir(obj.name);
-      const basePos = obj.position
-        .clone()
-        .sub(dir.multiplyScalar(explode * EX_FACTOR));
-
-      initialPosRef.current[obj.name] = basePos;
+      initialPosRef.current[obj.name] = obj.position.clone();
+      originalScaleRef.current[obj.name] = obj.scale.clone();
     });
-  }, [scene, explode]);
+  }, [scene]);
 
   /* =========================
    * 카메라 이동
@@ -233,7 +224,7 @@ export default function SuspensionModel({
         console.log('🛑 Scene stabilized → saved to sessionStorage');
         console.log(payload);
 
-        sessionStorage.setItem('Suspension', JSON.stringify(payload));
+        sessionStorage.setItem('suspension', JSON.stringify(payload));
       }, 10);
     }
     Object.entries(partsRef.current).forEach(([name, obj]) => {
@@ -241,42 +232,54 @@ export default function SuspensionModel({
       if (!base) return;
 
       const dir = getDir(name);
-      const target = base.clone().add(dir.multiplyScalar(explode * EX_FACTOR));
-      obj.position.lerp(target, 0.1);
+      obj.position.lerp(
+        base.clone().add(dir.multiplyScalar(explode * EX_FACTOR)),
+        0.1,
+      );
 
-      if (!(obj instanceof THREE.Mesh)) return;
-
-      const isActive = matchBySelectedName(selectedMeshName, name);
       const isHover =
-        hoveredName && matchBySelectedName(getHoveredPartTitle(), name);
+        hoveredName && name.toLowerCase().includes(hoveredName.toLowerCase());
 
-      const mat = obj.material as THREE.MeshStandardMaterial;
-      if (!mat?.emissive) return;
+      const isActive =
+        selectedMeshName &&
+        name.toLowerCase().includes(selectedMeshName.toLowerCase());
 
-      if (isActive) {
-        mat.emissive.set('#00e5ff');
-        mat.emissiveIntensity = 3.5;
-        mat.opacity = 0.65;
-      } else if (isHover) {
-        mat.emissive.set('#00bcd4');
-        mat.emissiveIntensity = 2.8;
-        mat.opacity = 0.8;
-      } else {
-        mat.emissive.set('#000');
-        mat.emissiveIntensity = 0;
-        mat.opacity = 1;
+      // ✅ 스케일 호버
+      const baseScale = originalScaleRef.current[name];
+      if (baseScale) {
+        obj.scale.lerp(
+          isHover ? baseScale.clone().multiplyScalar(1.03) : baseScale,
+          0.15,
+        );
       }
 
-      mat.transparent = true;
+      // ✅ 색상 호버 / 선택
+      if (obj instanceof THREE.Mesh) {
+        const mat = obj.material as THREE.MeshStandardMaterial;
+        if (!mat?.emissive) return;
+
+        if (isActive) {
+          mat.emissive.set('#00e5ff');
+          mat.emissiveIntensity = 3.5;
+          mat.opacity = 0.65;
+        } else if (isHover) {
+          mat.emissive.set('#00bcd4');
+          mat.emissiveIntensity = 2.8;
+          mat.opacity = 0.8;
+        } else {
+          mat.emissive.set('#000');
+          mat.emissiveIntensity = 0;
+          mat.opacity = 1;
+        }
+
+        mat.transparent = true;
+      }
     });
 
-    if (cameraTargetRef.current) {
+    // 🎯 카메라 자동 제어
+    if (isAutoCameraRef.current && cameraTargetRef.current) {
       camera.position.lerp(cameraTargetRef.current, 0.08);
       camera.lookAt(0, 0, 0);
-
-      if (camera.position.distanceTo(cameraTargetRef.current) < 0.05) {
-        cameraTargetRef.current = null;
-      }
     }
   });
 

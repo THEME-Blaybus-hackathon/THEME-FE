@@ -22,25 +22,25 @@ const CATEGORY_MAP: Record<string, StudyCardMeta> = {
     title: 'Drone',
     description: 'Drone 3D 모델입니다.',
     image: '/assets/models/drone.png',
-    model: 'Drone',
+    model: 'drone',
   },
   robot_arm: {
     title: 'Robot Arm',
     description: 'Robot Arm 3D 모델입니다.',
     image: '/assets/models/robot-arm.png',
-    model: 'Arm',
+    model: 'arm',
   },
   robot_gripper: {
     title: 'Robot Gripper',
     description: 'Robot Gripper 3D 모델입니다.',
     image: '/assets/models/robot-gripper.png',
-    model: 'Gripper',
+    model: 'gripper',
   },
   suspension: {
     title: 'Suspension',
     description: 'Suspension 구조 모델입니다.',
     image: '/assets/models/suspension.png',
-    model: 'Suspension',
+    model: 'suspension',
   },
 };
 

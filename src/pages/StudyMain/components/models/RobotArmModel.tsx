@@ -104,7 +104,7 @@ export default function RobotArmModel({
       : null;
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('RobotArm');
+    const saved = sessionStorage.getItem('arm');
     if (!saved) return;
 
     try {
@@ -222,7 +222,7 @@ export default function RobotArmModel({
         console.log('🛑 Scene stabilized → saved to sessionStorage');
         console.log(payload);
 
-        sessionStorage.setItem('RobotArm', JSON.stringify(payload));
+        sessionStorage.setItem('arm', JSON.stringify(payload));
       }, 10);
     }
     Object.entries(partsRef.current).forEach(([name, obj]) => {

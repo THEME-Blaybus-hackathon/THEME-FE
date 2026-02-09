@@ -1,4 +1,4 @@
-import api from "../axiosInstance";
+import api from '../axiosInstance';
 
 // === 인터페이스 정의 ===
 export interface AiChatRequest {
@@ -15,7 +15,7 @@ export interface AiChatResponse {
 }
 export interface ChatMessage {
   id: number;
-  role: "USER" | "ASSISTANT"; // 백엔드 대문자 기준
+  role: 'USER' | 'ASSISTANT'; // 백엔드 대문자 기준
   content: string;
   selectedPart?: string;
   createdAt: string;
@@ -40,9 +40,9 @@ export interface CommonResponse {
   message: string;
   data: string;
 }
-// api/ai/ai.ts
+
 export const askAI = async (data: AiChatRequest): Promise<AiChatResponse> => {
-  const response = await api.post("/api/ai/chat", data, {
+  const response = await api.post('/api/ai/chat', data, {
     timeout: 40000,
   });
   return response.data;
@@ -58,8 +58,17 @@ export const getAIHistory = async (
 export const deleteAISession = async (
   sessionId: string,
 ): Promise<CommonResponse> => {
-  const response = await api.delete("/api/ai/chat/session", {
+  const response = await api.delete('/api/ai/chat/session', {
     params: { sessionId },
   });
+  return response.data;
+};
+
+export const getAllSessions = async (
+  objectName: string,
+): Promise<ChatHistoryResponse[]> => {
+  const response = await api.get<ChatHistoryResponse[]>(
+    `/api/ai/chat/history/all?objectName=${objectName}`,
+  );
   return response.data;
 };

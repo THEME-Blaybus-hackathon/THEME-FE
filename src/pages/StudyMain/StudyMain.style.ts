@@ -13,17 +13,15 @@ export const Container = styled.div`
   font-family: Pretendard, system-ui, sans-serif;
   color: rgba(235, 240, 255, 0.92);
 
-  background:
-    radial-gradient(
-      800px 500px at 50% 50%,
-      #4A5568 0%,
-      #3B4552 22%,
-      #232833 48%,
-      #12151B 72%,
-      #06080C 100%
-    );
+  background: radial-gradient(
+    800px 500px at 50% 50%,
+    #4a5568 0%,
+    #3b4552 22%,
+    #232833 48%,
+    #12151b 72%,
+    #06080c 100%
+  );
 `;
-
 
 /* =========================
    MAIN / VIEWPORT
@@ -31,7 +29,6 @@ export const Container = styled.div`
 export const Main = styled.main`
   flex: 1;
   position: relative;
-  
 `;
 
 export const ViewportFrame = styled.div`
@@ -48,7 +45,6 @@ export const Viewport = styled.section`
   background: transparent;
 `;
 
-
 /* =========================
    LAYERS
 ========================= */
@@ -57,7 +53,6 @@ export const CanvasLayer = styled.div`
   inset: 0;
   z-index: 1;
 `;
-
 
 export const UILayer = styled.div`
   position: absolute;
@@ -85,7 +80,7 @@ export const ModelSelect = styled.select`
   border-radius: 999px;
   border: 1px solid rgba(160, 180, 220, 0);
 
-  background: #9EA2B74D;
+  background: #9ea2b74d;
   backdrop-filter: blur(100px);
 
   color: #ffffff;
@@ -105,8 +100,8 @@ export const RightControls = styled.div`
 `;
 export const AIPanelWrapper = styled.div`
   position: fixed;
-  right: 12%;
-  top: 18%;
+  right: 13%;
+  top: 25%;
 
   z-index: 20;
   pointer-events: auto;
@@ -119,16 +114,15 @@ export const DownloadButton = styled.button`
   width: 50px;
   height: 50px;
   padding: 0;
-  
 
   border-radius: 10px;
-  border: 1px solid #4C60CB;
+  border: 1px solid #4c60cb;
 
-  background: #4C60CB4D;
+  background: #4c60cb4d;
   color: rgba(120, 170, 255, 0.95);
 
   font-size: 15px;
-  font-height : 20;
+  font-height: 20;
   font-weight: 10;
 
   cursor: pointer;
@@ -148,7 +142,7 @@ export const TopRail = styled.div`
   top: 10%;
 
   display: flex;
-  flex-direction:row;
+  flex-direction: row;
   gap: 0px;
   z-index: 10;
 
@@ -209,14 +203,13 @@ export const IconButton = styled.button<{ active?: boolean }>`
 
   border: 1px solid
     ${({ active }) =>
-      active
-        ? 'rgba(120, 160, 255, 0)'
-        : 'rgba(255, 255, 255, 0)'};
+      active ? 'rgba(120, 160, 255, 0)' : 'rgba(255, 255, 255, 0)'};
 
-  background: ${({ active }) =>
-    active
-      ? '#4C60CB80' // 활성: 은은한 블루 글래스
-      : 'rgba(255, 255, 255, 0.18)' // 비활성: 거의 투명
+  background: ${
+    ({ active }) =>
+      active
+        ? '#4C60CB80' // 활성: 은은한 블루 글래스
+        : 'rgba(255, 255, 255, 0.18)' // 비활성: 거의 투명
   };
 
   color: ${({ active }) => (active ? '#e8f0ff' : '#f5f7fa')};
@@ -242,9 +235,7 @@ export const IconButton = styled.button<{ active?: boolean }>`
   &:hover {
     transform: translateY(-1px);
     background: ${({ active }) =>
-      active
-        ? 'rgba(120, 160, 255, 0.38)'
-        : 'rgba(255, 255, 255, 0.28)'};
+      active ? 'rgba(120, 160, 255, 0.38)' : 'rgba(255, 255, 255, 0.28)'};
   }
 
   &:active {
@@ -283,10 +274,6 @@ export const IconButton = styled.button<{ active?: boolean }>`
       `}
   }
 `;
-
-
-
-
 
 /* =========================
    BOTTOM SLIDER
@@ -346,7 +333,6 @@ export const SliderLabels = styled.div`
   color: rgba(235, 240, 255, 0.9);
 `;
 
-
 /* =========================
    BLUE INFO PANEL
 ========================= */
@@ -359,7 +345,7 @@ export const BlueInfoPanel = styled.aside`
   width: 400px;
   height: calc(100vh - 180px);
 
-  background: #ffffff4D;
+  background: #ffffff4d;
   backdrop-filter: blur(1px) saturate(400%);
   -webkit-backdrop-filter: blur(24px) saturate(120%);
 
@@ -372,23 +358,21 @@ export const BlueInfoPanel = styled.aside`
 
   border: 1px solid rgba(120, 160, 220, 0);
   box-shadow:
-    0 24px 70px rgba(0,0,0,0.5),
-    inset 0 0 0 1px rgba(255,255,255,0.04);
+    0 24px 70px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 
-  
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
 
-    background:
-      linear-gradient(
-        180deg,
-        rgba(255,255,255,0.10),
-        rgba(255,255,255,0.02) 2%,
-        rgba(0,0,0,0.08)
-      );
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.02) 2%,
+      rgba(0, 0, 0, 0.08)
+    );
 
     pointer-events: none;
   }
@@ -406,8 +390,6 @@ export const BlueInfoPanel = styled.aside`
     }
   }
 `;
-
-
 
 export const PanelHeader = styled.div`
   display: flex;

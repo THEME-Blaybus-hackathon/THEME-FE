@@ -1,19 +1,19 @@
 export const CATEGORY_MAP = {
   drone: {
     label: 'Drone',
-    model: 'Drone',
+    model: 'drone',
   },
   robot_arm: {
     label: 'Robot Arm',
-    model: 'Arm',
+    model: 'arm',
   },
   robot_gripper: {
     label: 'Robot Gripper',
-    model: 'Gripper',
+    model: 'gripper',
   },
   suspension: {
     label: 'Suspension',
-    model: 'Suspension',
+    model: 'suspension',
   },
   leaf_spring: {
     label: 'Leaf Spring',
