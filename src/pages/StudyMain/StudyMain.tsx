@@ -18,8 +18,6 @@ import aiIcon from '../../assets/images/ai.svg';
 
 import AIPanel from './components/panels/AIAssistantPanel'; // ✅ 추가
 
-
-
 import Header from '../../components/Header';
 
 import BlueInfoPanel from './components/panels/BlueInfoPanel';
@@ -118,11 +116,24 @@ export default function StudyMain() {
   const [rightTab, setRightTab] = useState<PanelTab | null>('MODEL');
   const [panelOpen, setPanelOpen] = useState(true);
   const [selectedMeshName, setSelectedMeshName] = useState<string | null>(null);
-  const [explodes, setExplodes] = useState<Record<string, number>>({
-    Drone: 0,
-    Arm: 0,
-    Gripper: 0,
-    Suspension: 0,
+  const EXPLODE_STORAGE_KEY = 'study-explodes';
+
+  const [explodes, setExplodes] = useState<Record<string, number>>(() => {
+    const saved = sessionStorage.getItem(EXPLODE_STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // 파싱 실패 시 기본값
+      }
+    }
+
+    return {
+      Drone: 0,
+      Arm: 0,
+      Gripper: 0,
+      Suspension: 0,
+    };
   });
 
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
@@ -130,7 +141,16 @@ export default function StudyMain() {
   const currentExplode = explodes[selectedModel] || 0;
 
   const handleExplodeChange = (value: number) => {
-    setExplodes((prev) => ({ ...prev, [selectedModel]: value }));
+    setExplodes((prev) => {
+      const next = {
+        ...prev,
+        [selectedModel]: value,
+      };
+
+      sessionStorage.setItem(EXPLODE_STORAGE_KEY, JSON.stringify(next));
+
+      return next;
+    });
   };
 
   const handleClickTab = (tab: 'MODEL' | 'PARTS' | 'NOTES') => {
@@ -250,48 +270,46 @@ export default function StudyMain() {
 
               {/* 위쪽 레일 */}
               <TopRail>
-              <IconButton active={rightTab === 'MODEL'}
-                onClick={() => handleClickTab('MODEL')}
-              >
-                <span className="icon">
+                <IconButton
+                  active={rightTab === 'MODEL'}
+                  onClick={() => handleClickTab('MODEL')}
+                >
+                  <span className="icon">
                     <img src={modelIcon} alt="모델" />
-                </span>
-               <span className="label">모델</span>
-              </IconButton>
+                  </span>
+                  <span className="label">모델</span>
+                </IconButton>
 
                 <IconButton
                   active={rightTab === 'PARTS'}
                   onClick={() => handleClickTab('PARTS')}
                 >
-                <span className="icon">
+                  <span className="icon">
                     <img src={partIcon} alt="부품" />
-                </span>
-               <span className="label">부품</span>
+                  </span>
+                  <span className="label">부품</span>
                 </IconButton>
                 <IconButton
                   active={rightTab === 'NOTES'}
                   onClick={() => handleClickTab('NOTES')}
                 >
-                <span className="icon">
+                  <span className="icon">
                     <img src={noteIcon} alt="노트" />
-                </span>
-               <span className="label">노트</span>
+                  </span>
+                  <span className="label">노트</span>
                 </IconButton>
-                
               </TopRail>
               <RightBottomRail>
-
-              <ClickableIcon
-                src={aiIcon}
-                alt="AI"
-                onClick={() => setAiPanelOpen((prev) => !prev)}
-              />
-              <AIPanelWrapper>
-            {aiPanelOpen && (
-                <AIPanel onClose={() => setAiPanelOpen(false)} />             
-              )}
-            </AIPanelWrapper>
-                
+                <ClickableIcon
+                  src={aiIcon}
+                  alt="AI"
+                  onClick={() => setAiPanelOpen((prev) => !prev)}
+                />
+                <AIPanelWrapper>
+                  {aiPanelOpen && (
+                    <AIPanel onClose={() => setAiPanelOpen(false)} />
+                  )}
+                </AIPanelWrapper>
               </RightBottomRail>
               <RightControls>
                 <DownloadButton>⬇</DownloadButton>
@@ -299,29 +317,30 @@ export default function StudyMain() {
 
               {/* 하단 슬라이더 */}
               <ExplodeBox>
-                  <SliderHeader>
-                     <SliderTitle>Assembly mode</SliderTitle>
+                <SliderHeader>
+                  <SliderTitle>Assembly mode</SliderTitle>
                   <SliderDesc>
                     슬라이더를 이동시켜 자유롭게 분해하고 조립하세요!
                   </SliderDesc>
-                  </SliderHeader>
+                </SliderHeader>
 
-                  <SliderTrackWrapper>
-                      <Slider
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={currentExplode}
-                        onChange={(e) => handleExplodeChange(Number(e.target.value))}
-                      />
-                  </SliderTrackWrapper>
+                <SliderTrackWrapper>
+                  <Slider
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={currentExplode}
+                    onChange={(e) =>
+                      handleExplodeChange(Number(e.target.value))
+                    }
+                  />
+                </SliderTrackWrapper>
 
-                  <SliderLabels>
-                      <span>조립</span>
-                      <span>분해</span>
-                    </SliderLabels>
+                <SliderLabels>
+                  <span>조립</span>
+                  <span>분해</span>
+                </SliderLabels>
               </ExplodeBox>
-
             </UILayer>
           </Viewport>
         </ViewportFrame>
