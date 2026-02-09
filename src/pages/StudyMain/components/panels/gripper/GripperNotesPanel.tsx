@@ -1,5 +1,5 @@
 import GenericNotesPanel from "../GenericNotesPanel";
 
 export default function GripperNotesPanel() {
-  return <GenericNotesPanel partName="Gripper" />;
+  return <GenericNotesPanel partName="gripper" />;
 }
