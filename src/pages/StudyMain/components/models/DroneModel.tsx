@@ -3,11 +3,51 @@ import { useGLTF } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { ThreeElements } from '@react-three/fiber';
+import PartTooltip from './PartTooltip';
 
 type Props = ThreeElements['group'] & {
   explode?: number;
   selectedMeshName: string | null;
 };
+
+/* =========================
+ * 파트 설명
+ * ========================= */
+const PART_DESCRIPTION_MAP: Record<string, string> = {
+  Nut: '볼트를 고정하는 너트 부품입니다.',
+  Impeller: '공기를 흡입·배출하여 드론의 추진력을 생성합니다.',
+  Gearing: '회전 속도와 토크를 조절하는 기어 시스템입니다.',
+  Arm: '드론의 프레임을 지지하는 암 구조입니다.',
+  xyz: '드론의 위치와 방향을 제어하는 xyz 축입니다.',
+  Leg: '착륙 시 충격을 흡수하는 착륙 다리입니다.',
+  'Assembly Screw': '각 부품을 결합하는 조립용 나사입니다.',
+  'Beater Disc': '회전 안정성을 보조하는 디스크입니다.',
+  MainFrame: '드론 전체 구조를 지지하는 메인 프레임입니다.',
+};
+
+/* =========================
+ * mesh → title 매핑
+ * ========================= */
+const PART_TITLE_MATCHERS: {
+  match: (meshName: string) => boolean;
+  title: string;
+}[] = [
+  { match: (n) => n.includes('Impellar_Blade'), title: 'Impeller' },
+  { match: (n) => n.includes('xyz'), title: 'xyz' },
+  { match: (n) => n.includes('Nut'), title: 'Nut' },
+  { match: (n) => n.includes('Gearing'), title: 'Gearing' },
+  { match: (n) => n.includes('Arm'), title: 'Arm' },
+  {
+    match: (n) =>
+      n.includes('Solid1034_') ||
+      n.includes('Solid1027_') ||
+      n.includes('Solid1004_'),
+    title: 'Leg',
+  },
+  { match: (n) => n.includes('Screw'), title: 'Assembly Screw' },
+  { match: (n) => n.includes('Solid1001'), title: 'Beater Disc' },
+  { match: (n) => n.includes('Main'), title: 'MainFrame' },
+];
 
 export default function DroneModel({
   explode = 0,
@@ -19,20 +59,23 @@ export default function DroneModel({
 
   const partsRef = useRef<Record<string, THREE.Object3D>>({});
   const initialPosRef = useRef<Record<string, THREE.Vector3>>({});
-
+  const originalScaleRef = useRef<Record<string, THREE.Vector3>>({});
+  const lastCameraPosRef = useRef<THREE.Vector3 | null>(null);
+  const logTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastExplodeRef = useRef<number>(explode);
   const [hoveredName, setHoveredName] = useState<string | null>(null);
 
+  /** 🔑 핵심: 카메라 제어 모드 */
   const cameraTargetRef = useRef<THREE.Vector3 | null>(null);
-  const defaultCameraPosRef = useRef<THREE.Vector3 | null>(null);
+  const isAutoCameraRef = useRef(false);
 
   const EX_FACTOR = 7;
 
   /* =========================
-   * explode 방향 계산
+   * explode 방향
    * ========================= */
   const getDir = (name: string): THREE.Vector3 => {
     const dir = new THREE.Vector3();
-
     if (name.includes('Leg')) dir.set(0, -1, 0);
     else if (name.includes('Beater')) dir.set(0, 0, 1);
     else if (name.includes('Impeller')) dir.set(0, 1, 0);
@@ -43,162 +86,208 @@ export default function DroneModel({
     else if (name.includes('Main'))
       dir.set(0, name.includes('001') ? -0.35 : 0.35, 0);
     else if (name.includes('Screw')) dir.set(0, -0.5, 0);
-
     return dir;
   };
 
-  /* =========================
-   * 선택 이름 ↔ mesh 매칭
-   * ========================= */
-  const matchBySelectedName = (
-    selected: string | null,
-    meshName: string,
-  ): boolean => {
-    if (!selected) return false;
-
-    switch (selected) {
-      case 'xyz':
-        return meshName.includes('xyz');
-
-      case 'Nut':
-        return meshName.includes('Nut');
-
-      case 'Main Frame':
-        return meshName.includes('Mainframe');
-
-      case 'Impeller':
-        return meshName.includes('Impellar');
-
-      case 'Gearing':
-        return meshName.includes('Gearing');
-
-      case 'Arm':
-        return meshName.includes('Arm_gear_');
-
-      case 'Leg':
-        return (
-          meshName.includes('Solid1034_') ||
-          meshName.includes('Solid1004_') ||
-          meshName.includes('Solid1040_') ||
-          meshName.includes('Solid1027_')
-        );
-
-      case 'Assembly Screw':
-        return meshName.includes('Screw_');
-
-      case 'Beater Disc':
-        return meshName.includes('Solid1001');
-
-      default:
-        return false;
-    }
+  const getHoveredPartTitle = () => {
+    if (!hoveredName) return null;
+    return (
+      PART_TITLE_MATCHERS.find(({ match }) => match(hoveredName))?.title ?? null
+    );
   };
 
+  useEffect(() => {
+    const saved = sessionStorage.getItem('Drone');
+    if (!saved) return;
+
+    try {
+      const data = JSON.parse(saved);
+
+      if (data.camera) {
+        camera.position.set(data.camera.x, data.camera.y, data.camera.z);
+        camera.lookAt(0, 0, 0);
+        lastCameraPosRef.current = camera.position.clone();
+      }
+
+      if (typeof data.zoom === 'number') {
+        const dir = camera.position.clone().normalize();
+        camera.position.copy(dir.multiplyScalar(data.zoom));
+      }
+
+      // 자동 카메라 비활성화
+      isAutoCameraRef.current = false;
+      cameraTargetRef.current = null;
+
+      console.log('♻️ Camera & zoom restored from sessionStorage');
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   /* =========================
-   * 초기 위치 & 파트 수집
+   * 초기화
    * ========================= */
   useEffect(() => {
-    if (!defaultCameraPosRef.current) {
-      defaultCameraPosRef.current = camera.position.clone();
-    }
-
     scene.traverse((obj) => {
       if (!obj.name || initialPosRef.current[obj.name]) return;
 
       partsRef.current[obj.name] = obj;
-
-      const dir = getDir(obj.name);
-      const basePos = obj.position
-        .clone()
-        .sub(dir.multiplyScalar(explode * EX_FACTOR));
-
-      initialPosRef.current[obj.name] = basePos;
+      initialPosRef.current[obj.name] = obj.position.clone();
+      originalScaleRef.current[obj.name] = obj.scale.clone();
     });
   }, [scene]);
 
-  useEffect(() => {
-    if (!hoveredName) return;
-
-    const matched = Object.keys(partsRef.current).filter((name) =>
-      matchBySelectedName(hoveredName, name),
-    );
-
-    console.log('🟢 Hover:', hoveredName);
-    console.log('📦 매칭된 mesh 목록:', matched);
-  }, [hoveredName]);
-
+  /* =========================
+   * 카메라 타겟 설정
+   * ========================= */
   useEffect(() => {
     if (!selectedMeshName) {
-      cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
+      // ✅ 자동 카메라 OFF → 자유 회전
+      isAutoCameraRef.current = false;
+      cameraTargetRef.current = null;
       return;
     }
 
-    const targetMeshes = Object.values(partsRef.current).filter((obj) =>
-      matchBySelectedName(selectedMeshName, obj.name),
+    const targets = Object.values(partsRef.current).filter((o) =>
+      o.name.toLowerCase().includes(selectedMeshName.toLowerCase()),
     );
 
-    if (targetMeshes.length === 0) return;
+    if (!targets.length) return;
 
     const center = new THREE.Vector3();
-    targetMeshes.forEach((obj) => {
-      const pos = new THREE.Vector3();
-      obj.getWorldPosition(pos);
-      center.add(pos);
+    targets.forEach((o) => {
+      const p = new THREE.Vector3();
+      o.getWorldPosition(p);
+      center.add(p);
     });
-    center.divideScalar(targetMeshes.length);
+    center.divideScalar(targets.length);
 
     cameraTargetRef.current = center.clone().add(new THREE.Vector3(0, 3, 10));
-
-    console.log('🎥 선택된 파트:', selectedMeshName);
-    console.log(
-      '📦 포함된 mesh:',
-      targetMeshes.map((o) => o.name),
-    );
+    isAutoCameraRef.current = true;
   }, [selectedMeshName]);
 
+  /* =========================
+   * 프레임 루프
+   * ========================= */
   useFrame(() => {
+    const currentCameraPos = camera.position.clone();
+
+    // 최초 프레임 초기화
+    if (!lastCameraPosRef.current) {
+      lastCameraPosRef.current = currentCameraPos;
+      lastExplodeRef.current = explode;
+      return;
+    }
+
+    const cameraMoved =
+      currentCameraPos.distanceTo(lastCameraPosRef.current) > 0.001;
+
+    const explodeChanged = Math.abs(explode - lastExplodeRef.current) > 0.0001;
+
+    const somethingMoved = cameraMoved || explodeChanged;
+
+    if (somethingMoved) {
+      // 최신 상태 갱신
+      lastCameraPosRef.current.copy(currentCameraPos);
+      lastExplodeRef.current = explode;
+
+      // 기존 예약 취소
+      if (logTimeoutRef.current) {
+        clearTimeout(logTimeoutRef.current);
+      }
+
+      // ⏱️ 멈춘 뒤 1초 후 실행
+      logTimeoutRef.current = setTimeout(() => {
+        const zoomDistance = camera.position.distanceTo(
+          new THREE.Vector3(0, 0, 0),
+        );
+
+        const payload = {
+          explode: Number(explode.toFixed(3)),
+          camera: {
+            x: Number(camera.position.x.toFixed(3)),
+            y: Number(camera.position.y.toFixed(3)),
+            z: Number(camera.position.z.toFixed(3)),
+          },
+          zoom: Number(zoomDistance.toFixed(3)),
+          timestamp: Date.now(),
+        };
+
+        console.log('🛑 Scene stabilized → saved to sessionStorage');
+        console.log(payload);
+
+        sessionStorage.setItem('Drone', JSON.stringify(payload));
+      }, 10);
+    }
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
       if (!base) return;
 
       const dir = getDir(name);
-      const target = base.clone().add(dir.multiplyScalar(explode * EX_FACTOR));
-      obj.position.lerp(target, 0.1);
+      obj.position.lerp(
+        base.clone().add(dir.multiplyScalar(explode * EX_FACTOR)),
+        0.1,
+      );
 
-      if (!(obj instanceof THREE.Mesh)) return;
+      const isHover =
+        hoveredName && name.toLowerCase().includes(hoveredName.toLowerCase());
 
-      const isActive = matchBySelectedName(selectedMeshName, name);
-      const isHover = matchBySelectedName(hoveredName, name);
+      const isActive =
+        selectedMeshName &&
+        name.toLowerCase().includes(selectedMeshName.toLowerCase());
 
-      const mat = obj.material as THREE.MeshStandardMaterial;
-      if (!mat?.emissive) return;
-
-      if (isActive) {
-        mat.emissive.set('#00e5ff');
-        mat.emissiveIntensity = 3.5;
-        mat.opacity = 0.65;
-      } else if (isHover) {
-        mat.emissive.set('#00888d');
-        mat.emissiveIntensity = 2.5;
-        mat.opacity = 0.7;
-      } else {
-        mat.emissive.set('#000000');
-        mat.emissiveIntensity = 0;
-        mat.opacity = 1;
+      // ✅ 스케일 호버
+      const baseScale = originalScaleRef.current[name];
+      if (baseScale) {
+        obj.scale.lerp(
+          isHover ? baseScale.clone().multiplyScalar(1.03) : baseScale,
+          0.15,
+        );
       }
 
-      mat.transparent = true;
+      // ✅ 색상 호버 / 선택
+      if (obj instanceof THREE.Mesh) {
+        const mat = obj.material as THREE.MeshStandardMaterial;
+        if (!mat?.emissive) return;
+
+        if (isActive) {
+          mat.emissive.set('#00e5ff');
+          mat.emissiveIntensity = 3.5;
+          mat.opacity = 0.65;
+        } else if (isHover) {
+          mat.emissive.set('#00bcd4');
+          mat.emissiveIntensity = 2.8;
+          mat.opacity = 0.8;
+        } else {
+          mat.emissive.set('#000');
+          mat.emissiveIntensity = 0;
+          mat.opacity = 1;
+        }
+
+        mat.transparent = true;
+      }
     });
 
-    if (cameraTargetRef.current) {
+    // 🎯 카메라 자동 제어
+    if (isAutoCameraRef.current && cameraTargetRef.current) {
       camera.position.lerp(cameraTargetRef.current, 0.08);
       camera.lookAt(0, 0, 0);
-
-      if (camera.position.distanceTo(cameraTargetRef.current) < 0.05) {
-        cameraTargetRef.current = null;
-      }
     }
   });
+
+  /* =========================
+   * 툴팁
+   * ========================= */
+  const hoveredPartTitle = getHoveredPartTitle();
+  const hoveredObj = hoveredName ? partsRef.current[hoveredName] : null;
+
+  const tooltipPos = hoveredObj
+    ? (() => {
+        const v = new THREE.Vector3();
+        hoveredObj.getWorldPosition(v);
+        return v;
+      })()
+    : null;
 
   return (
     <group
@@ -210,6 +299,14 @@ export default function DroneModel({
       onPointerOut={() => setHoveredName(null)}
     >
       <primitive object={scene} />
+
+      {hoveredPartTitle && tooltipPos && (
+        <PartTooltip
+          position={tooltipPos}
+          title={hoveredPartTitle}
+          description={PART_DESCRIPTION_MAP[hoveredPartTitle]}
+        />
+      )}
     </group>
   );
 }
