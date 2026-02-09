@@ -8,11 +8,11 @@ export const HeaderWrapper = styled.header`
   align-items: center;
   justify-content: space-between;
 
-  background-color: rgba(18, 26, 40, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0);
 
-  border-bottom: 1px solid rgba(120, 160, 220, 0.18);
+  position: relative;
+  z-index: 10;
 `;
 
 export const Left = styled.div`
@@ -100,9 +100,9 @@ export const LogoutButton = styled.button`
   padding: 8px 16px;
 
   border-radius: 10px;
-  border: 1px solid rgba(90, 140, 220, 0.45);
+  border: 1px solid rgba(90, 140, 220, 0);
 
-  background: rgba(90, 140, 220, 0.22);
+  background: #4C60CB;
   color: rgba(235, 242, 255, 0.95);
 
   font-size: 14px;
