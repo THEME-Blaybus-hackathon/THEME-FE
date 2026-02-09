@@ -12,7 +12,18 @@ export const Container = styled.div`
 
   font-family: Pretendard, system-ui, sans-serif;
   color: rgba(235, 240, 255, 0.92);
+
+  background:
+    radial-gradient(
+      800px 500px at 50% 50%,
+      #4A5568 0%,
+      #3B4552 22%,
+      #232833 48%,
+      #12151B 72%,
+      #06080C 100%
+    );
 `;
+
 
 /* =========================
    MAIN / VIEWPORT
@@ -20,6 +31,7 @@ export const Container = styled.div`
 export const Main = styled.main`
   flex: 1;
   position: relative;
+  
 `;
 
 export const ViewportFrame = styled.div`
@@ -33,19 +45,9 @@ export const Viewport = styled.section`
   width: 100%;
   height: 100%;
 
-  background:
-    radial-gradient(
-      820px 520px at 50% 42%,
-      rgba(90, 140, 220, 0.22) 0%,
-      rgba(0, 0, 0, 0) 58%
-    ),
-    radial-gradient(
-      1600px 1000px at 50% 68%,
-      rgba(0, 0, 0, 0.82) 70%,
-      rgba(0, 0, 0, 0.96) 100%
-    ),
-    #060b14;
+  background: transparent;
 `;
+
 
 /* =========================
    LAYERS
@@ -54,18 +56,6 @@ export const CanvasLayer = styled.div`
   position: absolute;
   inset: 0;
   z-index: 1;
-
-  background:
-    radial-gradient(
-      900px 600px at 50% 45%,
-      rgba(90, 140, 220, 0.22),
-      rgba(0, 0, 0, 0) 60%
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(20, 30, 50, 0.35),
-      rgba(5, 8, 15, 0.65)
-    );
 `;
 
 
@@ -81,22 +71,22 @@ export const UILayer = styled.div`
 ========================= */
 export const LeftControls = styled.div`
   position: absolute;
-  top: 32px;
-  left: 32px;
+  top: 20px;
+  left: 50px;
   display: flex;
   gap: 14px;
   pointer-events: auto;
 `;
 
 export const ModelSelect = styled.select`
-  height: 46px;
-  padding: 0 22px;
+  height: 30px;
+  padding: 0 40px;
 
   border-radius: 999px;
-  border: 1px solid rgba(160, 180, 220, 0.25);
+  border: 1px solid rgba(160, 180, 220, 0);
 
-  background: rgba(20, 28, 40, 0.78);
-  backdrop-filter: blur(14px);
+  background: #9EA2B74D;
+  backdrop-filter: blur(100px);
 
   color: #ffffff;
   font-size: 14px;
@@ -107,23 +97,34 @@ export const ModelSelect = styled.select`
 
 export const RightControls = styled.div`
   position: absolute;
-  top: 50%;
-  right: 15px;
+  top: 2%;
+  right: 20px;
   display: flex;
   gap: 14px;
   pointer-events: auto;
 `;
+export const AIPanelWrapper = styled.div`
+  position: fixed;
+  right: 12%;
+  top: 18%;
+
+  z-index: 20;
+  pointer-events: auto;
+
+  width: 360px;
+  max-height: 70vh;
+`;
 
 export const DownloadButton = styled.button`
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
   padding: 0;
   
 
-  border-radius: 25px;
-  border: 1px solid rgba(90, 140, 220, 0.55);
+  border-radius: 10px;
+  border: 1px solid #4C60CB;
 
-  background: rgba(90, 140, 220, 0.18);
+  background: #4C60CB4D;
   color: rgba(120, 170, 255, 0.95);
 
   font-size: 15px;
@@ -143,11 +144,11 @@ export const DownloadButton = styled.button`
 ========================= */
 export const TopRail = styled.div`
   position: absolute;
-  right: 10px;
-  top: 20%;
+  left: 50px;
+  top: 10%;
 
   display: flex;
-  flex-direction:column;
+  flex-direction:row;
   gap: 0px;
   z-index: 10;
 
@@ -195,29 +196,28 @@ export const ClickableIcon = styled.img`
 `;
 
 export const IconButton = styled.button<{ active?: boolean }>`
-  height: ${({ active }) => (active ? '96px' : '54px')};
-  width: 54px;
+  height: 54px;
+  width: ${({ active }) => (active ? '96px' : '54px')};
 
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: ${({ active }) => (active ? '10px' : '0')};
+  justify-content: ${({ active }) => (active ? 'flex-start' : 'center')};
 
-  padding: 8px, 0;
+  padding: ${({ active }) => (active ? '0 16px' : '0')};
 
-  border-radius: 8px;
+  border-radius: 10px;
 
   border: 1px solid
     ${({ active }) =>
       active
-        ? 'rgba(120, 160, 255, 0.45)'
-        : 'rgba(255, 255, 255, 0.25)'};
+        ? 'rgba(120, 160, 255, 0)'
+        : 'rgba(255, 255, 255, 0)'};
 
   background: ${({ active }) =>
     active
-      ? 'rgba(120, 160, 255, 0.28)'
-      : 'rgba(255, 255, 255, 0.18)'};
+      ? '#4C60CB80' // 활성: 은은한 블루 글래스
+      : 'rgba(255, 255, 255, 0.18)' // 비활성: 거의 투명
+  };
 
   color: ${({ active }) => (active ? '#e8f0ff' : '#f5f7fa')};
 
@@ -228,11 +228,12 @@ export const IconButton = styled.button<{ active?: boolean }>`
   -webkit-backdrop-filter: blur(18px) saturate(130%);
 
   box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.28),
+    0 12px 32px rgba(0, 0, 0, 0),
     inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 
   transition:
-    height 0.28s ease,
+    width 0.25s ease,
+    padding 0.25s ease,
     background 0.25s ease,
     border 0.25s ease,
     transform 0.2s ease,
@@ -240,13 +241,19 @@ export const IconButton = styled.button<{ active?: boolean }>`
 
   &:hover {
     transform: translateY(-1px);
+    background: ${({ active }) =>
+      active
+        ? 'rgba(120, 160, 255, 0.38)'
+        : 'rgba(255, 255, 255, 0.28)'};
   }
 
   &:active {
     transform: translateY(0);
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   }
 
-  /* 아이콘 */
   .icon {
     display: flex;
     align-items: center;
@@ -255,25 +262,28 @@ export const IconButton = styled.button<{ active?: boolean }>`
     img {
       width: 22px;
       height: 22px;
+      opacity: ${({ active }) => (active ? 1 : 0.9)};
     }
   }
 
-  /* 텍스트 */
   .label {
-    font-size: 12px;
-    line-height:0.5;
+    margin-left: 10px;
 
-    opacity: ${({ active }) => (active ? 1 : 0)};
-    transform: ${({ active }) =>
-      active ? 'translateY(0)' : 'translateY(-4px)'};
+    ${({ active }) =>
+      !active &&
+      `
+        display: none;
+      `}
 
-    transition:
-      opacity 0.22s ease,
-      transform 0.22s ease;
-
-    pointer-events: none;
+    ${({ active }) =>
+      active &&
+      `
+        display: block;
+        white-space: nowrap;
+      `}
   }
 `;
+
 
 
 
@@ -306,31 +316,61 @@ export const Slider = styled.input.attrs({ type: 'range' })`
     cursor: pointer;
   }
 `;
+export const SliderHeader = styled.div`
+  margin-bottom: 14px;
+`;
+
+export const SliderTitle = styled.div`
+  font-size: 18px;
+  font-weight: 800;
+  color: rgba(240, 245, 255, 0.95);
+`;
+
+export const SliderDesc = styled.div`
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(200, 215, 255, 0.7);
+`;
+
+export const SliderTrackWrapper = styled.div`
+  margin: 18px 0 10px;
+`;
+
+export const SliderLabels = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(235, 240, 255, 0.9);
+`;
+
 
 /* =========================
    BLUE INFO PANEL
 ========================= */
 export const BlueInfoPanel = styled.aside`
   position: absolute;
-  right: 55px;
-  top: 40px;
+  left: 25px;
+  top: 100px;
   z-index: 9;
 
-  width: 340px;
-  height: calc(100vh - 200px);
+  width: 400px;
+  height: calc(100vh - 180px);
 
-  background: rgba(30, 40, 60, 0.45);
+  background: #ffffff4D;
   backdrop-filter: blur(1px) saturate(400%);
   -webkit-backdrop-filter: blur(24px) saturate(120%);
 
-  border-radius: 28px;
+  border-radius: 20px;
   padding: 28px 28px 24px;
 
   display: flex;
   flex-direction: column;
   pointer-events: auto;
 
-  border: 1px solid rgba(120, 160, 220, 0.22);
+  border: 1px solid rgba(120, 160, 220, 0);
   box-shadow:
     0 24px 70px rgba(0,0,0,0.5),
     inset 0 0 0 1px rgba(255,255,255,0.04);
