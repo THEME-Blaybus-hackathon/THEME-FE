@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 /* =========================
    ROOT
@@ -61,13 +61,8 @@ export const CanvasLayer = styled.div`
       rgba(90, 140, 220, 0.22),
       rgba(0, 0, 0, 0) 60%
     ),
-    linear-gradient(
-      to bottom,
-      rgba(20, 30, 50, 0.35),
-      rgba(5, 8, 15, 0.65)
-    );
+    linear-gradient(to bottom, rgba(20, 30, 50, 0.35), rgba(5, 8, 15, 0.65));
 `;
-
 
 export const UILayer = styled.div`
   position: absolute;
@@ -104,21 +99,21 @@ export const ModelSelect = styled.select`
 
   cursor: pointer;
 `;
-
 export const RightControls = styled.div`
   position: absolute;
-  top: 50%;
-  right: 15px;
+  right: 28px;
+  bottom: 90px;
   display: flex;
-  gap: 14px;
-  pointer-events: auto;
+  flex-direction: row; /* reverse 대신 일반 row로 하고 순서를 맞추는 게 클릭 이벤트 잡기에 더 안정적입니다 */
+  align-items: flex-end;
+  gap: 15px;
+  z-index: 2000; /* 최대한 높여서 OrbitControls 방해 차단 */
+  pointer-events: auto; /* 명시적으로 이벤트 허용 */
 `;
-
 export const DownloadButton = styled.button`
   width: 30px;
   height: 30px;
   padding: 0;
-  
 
   border-radius: 25px;
   border: 1px solid rgba(90, 140, 220, 0.55);
@@ -127,7 +122,7 @@ export const DownloadButton = styled.button`
   color: rgba(120, 170, 255, 0.95);
 
   font-size: 15px;
-  font-height : 20;
+  font-height: 20;
   font-weight: 10;
 
   cursor: pointer;
@@ -147,7 +142,7 @@ export const TopRail = styled.div`
   top: 20%;
 
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   gap: 0px;
   z-index: 10;
 
@@ -195,14 +190,14 @@ export const ClickableIcon = styled.img`
 `;
 
 export const IconButton = styled.button<{ active?: boolean }>`
-  height: ${({ active }) => (active ? '96px' : '54px')};
+  height: ${({ active }) => (active ? "96px" : "54px")};
   width: 54px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: ${({ active }) => (active ? '10px' : '0')};
+  gap: ${({ active }) => (active ? "10px" : "0")};
 
   padding: 8px, 0;
 
@@ -210,16 +205,12 @@ export const IconButton = styled.button<{ active?: boolean }>`
 
   border: 1px solid
     ${({ active }) =>
-      active
-        ? 'rgba(120, 160, 255, 0.45)'
-        : 'rgba(255, 255, 255, 0.25)'};
+      active ? "rgba(120, 160, 255, 0.45)" : "rgba(255, 255, 255, 0.25)"};
 
   background: ${({ active }) =>
-    active
-      ? 'rgba(120, 160, 255, 0.28)'
-      : 'rgba(255, 255, 255, 0.18)'};
+    active ? "rgba(120, 160, 255, 0.28)" : "rgba(255, 255, 255, 0.18)"};
 
-  color: ${({ active }) => (active ? '#e8f0ff' : '#f5f7fa')};
+  color: ${({ active }) => (active ? "#e8f0ff" : "#f5f7fa")};
 
   font-size: 13px;
   font-weight: 800;
@@ -261,11 +252,11 @@ export const IconButton = styled.button<{ active?: boolean }>`
   /* 텍스트 */
   .label {
     font-size: 12px;
-    line-height:0.5;
+    line-height: 0.5;
 
     opacity: ${({ active }) => (active ? 1 : 0)};
     transform: ${({ active }) =>
-      active ? 'translateY(0)' : 'translateY(-4px)'};
+      active ? "translateY(0)" : "translateY(-4px)"};
 
     transition:
       opacity 0.22s ease,
@@ -274,9 +265,6 @@ export const IconButton = styled.button<{ active?: boolean }>`
     pointer-events: none;
   }
 `;
-
-
-
 
 /* =========================
    BOTTOM SLIDER
@@ -291,7 +279,7 @@ export const ExplodeBox = styled.div`
   pointer-events: auto;
 `;
 
-export const Slider = styled.input.attrs({ type: 'range' })`
+export const Slider = styled.input.attrs({ type: "range" })`
   width: 100%;
   height: 10px;
 
@@ -332,23 +320,21 @@ export const BlueInfoPanel = styled.aside`
 
   border: 1px solid rgba(120, 160, 220, 0.22);
   box-shadow:
-    0 24px 70px rgba(0,0,0,0.5),
-    inset 0 0 0 1px rgba(255,255,255,0.04);
+    0 24px 70px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 
-  
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
 
-    background:
-      linear-gradient(
-        180deg,
-        rgba(255,255,255,0.10),
-        rgba(255,255,255,0.02) 2%,
-        rgba(0,0,0,0.08)
-      );
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.02) 2%,
+      rgba(0, 0, 0, 0.08)
+    );
 
     pointer-events: none;
   }
@@ -366,8 +352,6 @@ export const BlueInfoPanel = styled.aside`
     }
   }
 `;
-
-
 
 export const PanelHeader = styled.div`
   display: flex;

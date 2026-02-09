@@ -1,5 +1,5 @@
 import GenericNotesPanel from "../GenericNotesPanel";
 
 export default function DroneNotesPanel() {
-  return <GenericNotesPanel partName="Suspension" />;
+  return <GenericNotesPanel partName="suspension" />;
 }

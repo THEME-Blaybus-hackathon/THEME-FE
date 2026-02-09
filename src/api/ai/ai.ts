@@ -47,17 +47,13 @@ export const askAI = async (data: AiChatRequest): Promise<AiChatResponse> => {
   });
   return response.data;
 };
-
-// 2. 대화 히스토리 조회 (GET)
 export const getAIHistory = async (
   sessionId: string,
 ): Promise<ChatHistoryResponse> => {
-  const response = await api.get("/api/ai/chat/history", {
-    params: { sessionId },
-  });
+  // URL에 직접 붙여서 명확하게 전달
+  const response = await api.get(`/api/ai/chat/history?sessionId=${sessionId}`);
   return response.data;
 };
-
 // 3. 세션 삭제 (DELETE)
 export const deleteAISession = async (
   sessionId: string,

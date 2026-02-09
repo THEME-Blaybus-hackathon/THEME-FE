@@ -23,6 +23,10 @@ import type { ModelType, PanelTab } from "../../types/model";
 import { useObjectCategories } from "../../api/model/queries";
 import { CATEGORY_MAP } from "./constants/categoryMap";
 import ModelSelectSkeleton from "./components/ModelSelectSkeleton";
+import SessionListPanel from "./components/panels/SessionListPanel";
+
+import { useDownloadPDF } from "../../api/pdf/queries"; // 경로 확인 필요
+import type { PDFDownloadRequest } from "../../api/pdf/pdf";
 
 type ModelRenderConfig = {
   Component: React.FC<{ explode: number }>;
@@ -114,6 +118,13 @@ export default function StudyMain() {
   });
 
   const currentExplode = explodes[selectedModel] || 0;
+
+  const [showSessionList, setShowSessionList] = useState(false);
+
+  // ✅ 기존 handleDownloadClick를 아래와 같이 단순하게 수정
+  const handleDownloadClick = () => {
+    setShowSessionList((prev) => !prev); // 패널 토글
+  };
 
   const handleExplodeChange = (value: number) => {
     setExplodes((prev) => ({ ...prev, [selectedModel]: value }));
@@ -310,7 +321,29 @@ export default function StudyMain() {
                 </IconButton>
               </RightBottomRail>
               <RightControls>
-                <DownloadButton>⬇</DownloadButton>
+                {/* 2번: 버튼 클릭 시 나타나는 패널 (오른쪽에 있는 버튼의 '왼쪽'에 위치하게 됨) */}
+                {showSessionList && (
+                  <SessionListPanel
+                    sessions={JSON.parse(
+                      localStorage.getItem("ai_chat_sessions") || "[]",
+                    ).filter(
+                      (s: any) =>
+                        s.objectName.toLowerCase() ===
+                        selectedModel.toLowerCase(),
+                    )}
+                    onClose={() => setShowSessionList(false)}
+                    selectedModel={selectedModel}
+                    selectedMeshName={selectedMeshName}
+                  />
+                )}
+
+                {/* 1번: 고정된 다운로드 버튼 (오른쪽 끝) */}
+                <DownloadButton
+                  onClick={handleDownloadClick}
+                  style={{ cursor: "pointer", flexShrink: 0 }}
+                >
+                  ⬇
+                </DownloadButton>
               </RightControls>
 
               {/* 하단 슬라이더 */}
