@@ -1,23 +1,23 @@
-//StudyMain.tsx
-import { useState, useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Line } from "@react-three/drei";
-import { useLocation } from "react-router-dom";
-import { GridHelper } from "three";
-import * as THREE from "three";
+import { useState, useMemo } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Line } from '@react-three/drei';
+import { useLocation } from 'react-router-dom';
+import { GridHelper } from 'three';
+import * as THREE from 'three';
 
-import DroneModel from "./components/models/DroneModel";
-import RobotArmModel from "./components/models/RobotArmModel";
-import RobotGripperModel from "./components/models/RobotGripperModel";
-import SuspensionModel from "./components/models/SuspensionModel";
-import modelIcon from "../../assets/images/Info.svg";
-import partIcon from "../../assets/images/part.svg";
-import noteIcon from "../../assets/images/note.svg";
-import aiIcon from "../../assets/images/ai.svg";
-import Header from "../../components/Header";
+import DroneModel from './components/models/DroneModel';
+import RobotArmModel from './components/models/RobotArmModel';
+import RobotGripperModel from './components/models/RobotGripperModel';
+import SuspensionModel from './components/models/SuspensionModel';
 
-import BlueInfoPanel from "./components/panels/BlueInfoPanel";
-import { PANEL_MAP } from "./components/panelMap";
+import modelIcon from '../../assets/images/Info.svg';
+import partIcon from '../../assets/images/part.svg';
+import noteIcon from '../../assets/images/note.svg';
+import aiIcon from '../../assets/images/ai.svg';
+
+import AIPanel from './components/panels/AIAssistantPanel'; // ✅ 추가
+
+import Header from '../../components/Header';
 
 import type { ModelType, PanelTab } from "../../types/model";
 import { useObjectCategories } from "../../api/model/queries";
@@ -27,6 +27,9 @@ import SessionListPanel from "./components/panels/SessionListPanel";
 
 import { useDownloadPDF } from "../../api/pdf/queries"; // 경로 확인 필요
 import type { PDFDownloadRequest } from "../../api/pdf/pdf";
+import BlueInfoPanel from './components/panels/BlueInfoPanel';
+import { PANEL_MAP } from './components/panelMap';
+
 
 type ModelRenderConfig = {
   Component: React.FC<{ explode: number }>;
@@ -38,22 +41,22 @@ const MODEL_RENDER_MAP: Record<ModelType, ModelRenderConfig> = {
   Drone: {
     Component: DroneModel,
     scale: [1.2, 1.2, 1.2],
-    explodeKey: "Drone",
+    explodeKey: 'Drone',
   },
   Arm: {
     Component: RobotArmModel,
     scale: [0.35, 0.35, 0.35],
-    explodeKey: "Arm",
+    explodeKey: 'Arm',
   },
   Gripper: {
     Component: RobotGripperModel,
     scale: [1.3, 1.3, 1.3],
-    explodeKey: "Gripper",
+    explodeKey: 'Gripper',
   },
   Suspension: {
     Component: SuspensionModel,
     scale: [1.2, 1.2, 1.2],
-    explodeKey: "Suspension",
+    explodeKey: 'Suspension',
   },
 };
 
@@ -74,7 +77,13 @@ import {
   TopRail,
   ClickableIcon,
   RightControls,
-} from "./StudyMain.style";
+  AIPanelWrapper,
+  SliderHeader,
+  SliderTitle,
+  SliderDesc,
+  SliderTrackWrapper,
+  SliderLabels,
+} from './StudyMain.style';
 
 type GridGuideProps = {
   size?: number;
@@ -88,7 +97,7 @@ export function GridGuide({
   opacity = 0.25,
 }: GridGuideProps) {
   const grid = useMemo(() => {
-    const helper = new GridHelper(size, divisions, "#ffffff", "#ffffff");
+    const helper = new GridHelper(size, divisions, '#ffffff', '#ffffff');
 
     const mat = helper.material as THREE.LineBasicMaterial;
     mat.transparent = true;
@@ -102,20 +111,35 @@ export function GridGuide({
 
 export default function StudyMain() {
   const location = useLocation();
-  const initialModel = (location.state as { model?: string })?.model ?? "Drone";
+  const initialModel = (location.state as { model?: string })?.model ?? 'Drone';
 
   const [selectedModel, setSelectedModel] = useState<ModelType>(
     initialModel as ModelType,
   );
-  const [rightTab, setRightTab] = useState<PanelTab | null>("MODEL");
+  const [rightTab, setRightTab] = useState<PanelTab | null>('MODEL');
   const [panelOpen, setPanelOpen] = useState(true);
   const [selectedMeshName, setSelectedMeshName] = useState<string | null>(null);
-  const [explodes, setExplodes] = useState<Record<string, number>>({
-    Drone: 0,
-    Arm: 0,
-    Gripper: 0,
-    Suspension: 0,
+  const EXPLODE_STORAGE_KEY = 'study-explodes';
+
+  const [explodes, setExplodes] = useState<Record<string, number>>(() => {
+    const saved = sessionStorage.getItem(EXPLODE_STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // 파싱 실패 시 기본값
+      }
+    }
+
+    return {
+      Drone: 0,
+      Arm: 0,
+      Gripper: 0,
+      Suspension: 0,
+    };
   });
+
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
 
   const currentExplode = explodes[selectedModel] || 0;
 
@@ -127,16 +151,21 @@ export default function StudyMain() {
   };
 
   const handleExplodeChange = (value: number) => {
-    setExplodes((prev) => ({ ...prev, [selectedModel]: value }));
+    setExplodes((prev) => {
+      const next = {
+        ...prev,
+        [selectedModel]: value,
+      };
+
+      sessionStorage.setItem(EXPLODE_STORAGE_KEY, JSON.stringify(next));
+
+      return next;
+    });
   };
 
-  const handleClickTab = (tab: PanelTab) => {
-    if (rightTab === tab && panelOpen) {
-      handleClosePanel();
-    } else {
-      setRightTab(tab);
-      setPanelOpen(true);
-    }
+  const handleClickTab = (tab: 'MODEL' | 'PARTS' | 'NOTES') => {
+    setRightTab(tab);
+    setPanelOpen(true);
   };
 
   const handleClosePanel = () => {
@@ -144,61 +173,21 @@ export default function StudyMain() {
     setRightTab(null);
   };
 
-  /** ✅ 모델 + 탭에 따른 패널 콘텐츠 결정 */
+  /** 모델 + 탭에 따른 패널 콘텐츠 결정 */
   const PanelContent = rightTab && PANEL_MAP[selectedModel]?.[rightTab];
 
+  /** 탭 타이틀 */
   const getPanelTitle = () => {
-    switch (rightTab) {
-      case "MODEL":
-        return "MODEL INFO";
-      case "PARTS":
-        return "PARTS";
-      case "NOTES":
-        return "NOTES";
-      case "AI":
-        return "AI ASSISTANT";
-      default:
-        return "";
-    }
+    if (rightTab === 'MODEL') return 'MODEL INFO';
+    if (rightTab === 'PARTS') return 'PARTS';
+    return 'NOTES';
   };
-  const renderAIPanels = () => {
-    const models: ModelType[] = ["Drone", "Arm", "Gripper", "Suspension"];
-    const isAIActive = panelOpen && rightTab === "AI";
 
-    return models.map((model) => {
-      const AICleanPanel = PANEL_MAP[model]?.["AI"];
-      if (!AICleanPanel) return null;
-
-      return (
-        <div
-          key={`ai-persistent-${model}`}
-          style={{
-            display: isAIActive && selectedModel === model ? "block" : "none",
-            position: "absolute",
-            right: "80px",
-            bottom: "30px",
-            zIndex: 1000,
-            pointerEvents: "auto",
-          }} // ✅ 3D 배경(OrbitControls)이 클릭을 가로채지 못하게 방어막 강화
-          onPointerDown={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <AICleanPanel
-            selectedMeshName={selectedMeshName}
-            onSelectMesh={setSelectedMeshName}
-            objectName={model}
-          />
-        </div>
-      );
-    });
-  };
   const { data: categoryData, isLoading, isError } = useObjectCategories();
 
   return (
     <Container>
       <Header />
-
       <Main>
         <ViewportFrame>
           <Viewport>
@@ -244,6 +233,7 @@ export default function StudyMain() {
 
             {/* ===== UI ===== */}
             <UILayer>
+              {/* 좌측 상단 */}
               <LeftControls>
                 {isLoading && <ModelSelectSkeleton />}
                 {isError && (
@@ -251,18 +241,19 @@ export default function StudyMain() {
                     <option>모델 로딩 실패</option>
                   </ModelSelect>
                 )}
+
                 {!isLoading && !isError && categoryData && (
                   <ModelSelect
                     value={selectedModel}
-                    onChange={(e) => {
-                      setSelectedModel(e.target.value as ModelType);
-                      setSelectedMeshName(null); // 모델 변경 시 선택된 부품 초기화
-                    }}
+                    onChange={(e) =>
+                      setSelectedModel(e.target.value as ModelType)
+                    }
                   >
                     {categoryData.categories.map((category) => {
                       const meta =
                         CATEGORY_MAP[category as keyof typeof CATEGORY_MAP];
                       if (!meta) return null;
+
                       return (
                         <option key={category} value={meta.model}>
                           {meta.model}
@@ -273,7 +264,8 @@ export default function StudyMain() {
                 )}
               </LeftControls>
 
-              {panelOpen && rightTab && rightTab !== "AI" && PanelContent && (
+              {/* ===== 상단패널 (컴포넌트화 완료) ===== */}
+              {panelOpen && rightTab && PanelContent && (
                 <BlueInfoPanel
                   key={`${selectedModel}-${rightTab}`}
                   title={getPanelTitle()}
@@ -286,39 +278,48 @@ export default function StudyMain() {
                 </BlueInfoPanel>
               )}
 
-              {renderAIPanels()}
-
+              {/* 위쪽 레일 */}
               <TopRail>
-                {["MODEL", "PARTS", "NOTES"].map((tab) => (
-                  <IconButton
-                    key={tab}
-                    active={rightTab === tab}
-                    onClick={() => handleClickTab(tab as PanelTab)}
-                  >
-                    {tab === "MODEL"
-                      ? "모델"
-                      : tab === "PARTS"
-                        ? "부품"
-                        : "노트"}
-                  </IconButton>
-                ))}
-              </TopRail>
-
-              <RightBottomRail>
                 <IconButton
-                  active={rightTab === "AI"}
-                  style={{
-                    marginTop: "8px",
-                    border: "1.5px solid #2F54EB",
-                    background:
-                      rightTab === "AI"
-                        ? "linear-gradient(135deg, #6e8efb, #a777e3)"
-                        : "rgba(47, 84, 235, 0.2)",
-                  }}
-                  onClick={() => handleClickTab("AI")}
+                  active={rightTab === 'MODEL'}
+                  onClick={() => handleClickTab('MODEL')}
                 >
-                  🎓 AI
+                  <span className="icon">
+                    <img src={modelIcon} alt="모델" />
+                  </span>
+                  <span className="label">모델</span>
                 </IconButton>
+
+                <IconButton
+                  active={rightTab === 'PARTS'}
+                  onClick={() => handleClickTab('PARTS')}
+                >
+                  <span className="icon">
+                    <img src={partIcon} alt="부품" />
+                  </span>
+                  <span className="label">부품</span>
+                </IconButton>
+                <IconButton
+                  active={rightTab === 'NOTES'}
+                  onClick={() => handleClickTab('NOTES')}
+                >
+                  <span className="icon">
+                    <img src={noteIcon} alt="노트" />
+                  </span>
+                  <span className="label">노트</span>
+                </IconButton>
+              </TopRail>
+              <RightBottomRail>
+                <ClickableIcon
+                  src={aiIcon}
+                  alt="AI"
+                  onClick={() => setAiPanelOpen((prev) => !prev)}
+                />
+                <AIPanelWrapper>
+                  {aiPanelOpen && (
+                    <AIPanel onClose={() => setAiPanelOpen(false)} />
+                  )}
+                </AIPanelWrapper>
               </RightBottomRail>
               <RightControls>
                 {/* 2번: 버튼 클릭 시 나타나는 패널 (오른쪽에 있는 버튼의 '왼쪽'에 위치하게 됨) */}
@@ -348,13 +349,29 @@ export default function StudyMain() {
 
               {/* 하단 슬라이더 */}
               <ExplodeBox>
-                <Slider
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={currentExplode}
-                  onChange={(e) => handleExplodeChange(Number(e.target.value))}
-                />
+                <SliderHeader>
+                  <SliderTitle>Assembly mode</SliderTitle>
+                  <SliderDesc>
+                    슬라이더를 이동시켜 자유롭게 분해하고 조립하세요!
+                  </SliderDesc>
+                </SliderHeader>
+
+                <SliderTrackWrapper>
+                  <Slider
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={currentExplode}
+                    onChange={(e) =>
+                      handleExplodeChange(Number(e.target.value))
+                    }
+                  />
+                </SliderTrackWrapper>
+
+                <SliderLabels>
+                  <span>조립</span>
+                  <span>분해</span>
+                </SliderLabels>
               </ExplodeBox>
             </UILayer>
           </Viewport>

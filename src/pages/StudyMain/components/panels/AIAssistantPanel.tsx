@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
   useAIHistory,
   useAskAI,
   useDeleteSession,
-} from "../../../../api/ai/queries";
+} from '../../../../api/ai/queries';
 
 interface Props {
   objectName: string;
@@ -20,15 +20,15 @@ interface SavedSession {
 const AIAvatar = () => (
   <div
     style={{
-      width: "32px",
-      height: "32px",
-      borderRadius: "50%",
-      background: "linear-gradient(to bottom right, #7388f5, #9e7bf2)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
+      width: '32px',
+      height: '32px',
+      borderRadius: '50%',
+      background: 'linear-gradient(to bottom right, #7388f5, #9e7bf2)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
       flexShrink: 0,
-      fontSize: "14px",
+      fontSize: '14px',
     }}
   >
     ✦
@@ -36,21 +36,20 @@ const AIAvatar = () => (
 );
 
 const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // ✅ 사이드바 열림/닫힘 상태 추가
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: history, isLoading } = useAIHistory(sessionId);
   const { mutate: ask, isPending } = useAskAI();
   const { mutate: deleteSession } = useDeleteSession();
 
-  const [lastSentMessage, setLastSentMessage] = useState("");
-
   const [sessionList, setSessionList] = useState<SavedSession[]>(() => {
     const saved =
-      typeof window !== "undefined"
-        ? localStorage.getItem("ai_chat_sessions")
+      typeof window !== 'undefined'
+        ? localStorage.getItem('ai_chat_sessions')
         : null;
     return saved ? JSON.parse(saved) : [];
   });
@@ -67,33 +66,38 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       ...sessionList.filter((s) => s.sessionId !== newId),
     ];
     setSessionList(newList);
-    localStorage.setItem("ai_chat_sessions", JSON.stringify(newList));
+    localStorage.setItem('ai_chat_sessions', JSON.stringify(newList));
   };
+
   const handleSend = (e?: React.MouseEvent | React.FormEvent) => {
     if (e) {
-      if ("preventDefault" in e) e.preventDefault();
+      e.stopPropagation();
+      if ('preventDefault' in e) e.preventDefault();
     }
 
     if (!input.trim() || isPending) return;
 
     const currentInput = input;
-    setLastSentMessage(currentInput);
-    setInput("");
+    setInput('');
 
     ask(
       {
         message: currentInput,
-        objectName: objectName.toLowerCase(),
+        objectName: objectName,
         sessionId: sessionId,
         selectedPart: selectedPart || null,
       },
       {
         onSuccess: (res) => {
-          setLastSentMessage("");
           if (!sessionId && res.sessionId) {
             setSessionId(res.sessionId);
             saveSessionToList(res.sessionId, currentInput);
           }
+        },
+        onError: (err) => {
+          console.error('AI 요청 실패:', err);
+          setInput(currentInput);
+          alert('메시지 전송에 실패했습니다. (권한 에러일 수 있습니다.)');
         },
       },
     );
@@ -102,17 +106,17 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
   const handleNewChat = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSessionId(null);
-    setInput("");
+    setInput('');
   };
 
   const handleDeleteSession = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm("이 대화를 삭제하시겠습니까?")) {
+    if (window.confirm('이 대화를 삭제하시겠습니까?')) {
       deleteSession(id, {
         onSuccess: () => {
           const newList = sessionList.filter((s) => s.sessionId !== id);
           setSessionList(newList);
-          localStorage.setItem("ai_chat_sessions", JSON.stringify(newList));
+          localStorage.setItem('ai_chat_sessions', JSON.stringify(newList));
           if (sessionId === id) setSessionId(null);
         },
       });
@@ -124,51 +128,51 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       style={{
-        display: "flex",
-        height: "550px",
-        width: isSidebarOpen ? "550px" : "380px", // 사이드바가 열릴 때 전체 너비 확장
-        borderRadius: "24px",
-        overflow: "hidden",
-        border: "1px solid rgba(255, 255, 255, 0.2)",
-        color: "white",
-        boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+        display: 'flex',
+        height: '550px',
+        width: isSidebarOpen ? '500px' : '350px', // 사이드바가 열릴 때 전체 너비 확장
+        borderRadius: '24px',
+        overflow: 'hidden',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        color: 'white',
+        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
         background:
-          "linear-gradient(135deg, rgba(80, 95, 138, 0.8) 0%, rgba(121, 137, 185, 0.7) 100%)",
-        backdropFilter: "blur(15px)",
-        fontFamily: "sans-serif",
+          'linear-gradient(135deg, rgba(80, 95, 138, 0.8) 0%, rgba(121, 137, 185, 0.7) 100%)',
+        backdropFilter: 'blur(15px)',
+        fontFamily: 'sans-serif',
         zIndex: 1000,
-        pointerEvents: "auto",
-        transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)", // 부드러운 애니메이션
+        pointerEvents: 'auto',
+        transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)', // 부드러운 애니메이션
       }}
     >
       {/* ⬅️ 왼쪽: 세션 리스트 사이드바 (아코디언 기능) */}
       <div
         style={{
-          width: isSidebarOpen ? "220px" : "0px",
-          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          width: isSidebarOpen ? '250px' : '0px',
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
           borderRight: isSidebarOpen
-            ? "1px solid rgba(255, 255, 255, 0.1)"
-            : "none",
-          display: "flex",
-          flexDirection: "column",
-          transition: "all 0.4s ease",
-          overflow: "hidden", // 닫혔을 때 내용물 숨김
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.4s ease',
+          overflow: 'hidden', // 닫혔을 때 내용물 숨김
           flexShrink: 0,
         }}
       >
-        <div style={{ padding: "20px", minWidth: "220px" }}>
+        <div style={{ padding: '20px', minWidth: '250px' }}>
           <button
             onClick={handleNewChat}
             style={{
-              width: "100%",
-              padding: "12px",
-              borderRadius: "12px",
-              backgroundColor: "rgba(47, 84, 235, 0.8)",
-              border: "none",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: "bold",
-              fontSize: "13px",
+              width: '100%',
+              padding: '12px',
+              borderRadius: '12px',
+              backgroundColor: 'rgba(47, 84, 235, 0.8)',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '13px',
             }}
           >
             + New Chat
@@ -178,81 +182,77 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
         <div
           style={{
             flex: 1,
-            overflowY: "auto",
-            padding: "0 12px 20px",
-            minWidth: "220px",
+            overflowY: 'auto',
+            padding: '0 12px 20px',
+            minWidth: '250px',
           }}
         >
           <div
             style={{
-              fontSize: "11px",
+              fontSize: '11px',
               opacity: 0.5,
-              marginBottom: "10px",
-              paddingLeft: "8px",
+              marginBottom: '10px',
+              paddingLeft: '8px',
             }}
           >
             최근 대화 목록
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {sessionList.map((s) => (
+          {sessionList.map((s) => (
+            <div
+              key={s.sessionId}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSessionId(s.sessionId);
+              }}
+              style={{
+                padding: '12px',
+                borderRadius: '12px',
+                marginBottom: '8px',
+                backgroundColor:
+                  sessionId === s.sessionId
+                    ? 'rgba(255, 255, 255, 0.15)'
+                    : 'transparent',
+                cursor: 'pointer',
+                position: 'relative',
+                border:
+                  sessionId === s.sessionId
+                    ? '1px solid rgba(255,255,255,0.2)'
+                    : '1px solid transparent',
+                transition: 'all 0.2s',
+              }}
+            >
               <div
-                key={s.sessionId}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSessionId(s.sessionId);
-                }}
                 style={{
-                  padding: "12px",
-                  borderRadius: "12px",
-                  marginBottom: "8px",
-                  backgroundColor:
-                    sessionId === s.sessionId
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "transparent",
-                  cursor: "pointer",
-                  position: "relative",
-                  border:
-                    sessionId === s.sessionId
-                      ? "1px solid rgba(255,255,255,0.2)"
-                      : "1px solid transparent",
-                  transition: "all 0.2s",
+                  fontSize: '13px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  paddingRight: '20px',
                 }}
               >
-                <div
-                  style={{
-                    fontSize: "13px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    paddingRight: "20px",
-                  }}
-                >
-                  {s.title}
-                </div>
-                <div
-                  style={{ fontSize: "10px", opacity: 0.4, marginTop: "4px" }}
-                >
-                  {s.objectName} · {new Date(s.timestamp).toLocaleDateString()}
-                </div>
-                <button
-                  onClick={(e) => handleDeleteSession(s.sessionId, e)}
-                  style={{
-                    position: "absolute",
-                    right: "8px",
-                    top: "14px",
-                    background: "none",
-                    border: "none",
-                    color: "white",
-                    opacity: 0.3,
-                    cursor: "pointer",
-                    fontSize: "10px",
-                  }}
-                >
-                  ✕
-                </button>
+                {s.title}
               </div>
-            ))}
-          </div>
+              <div style={{ fontSize: '10px', opacity: 0.4, marginTop: '4px' }}>
+                {s.objectName} · {new Date(s.timestamp).toLocaleDateString()}
+              </div>
+              <button
+                onClick={(e) => handleDeleteSession(s.sessionId, e)}
+                style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '14px',
+                  background: 'none',
+                  border: 'none',
+                  color: 'white',
+                  opacity: 0.3,
+                  cursor: 'pointer',
+                  fontSize: '10px',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -260,19 +260,19 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
       <div
         style={{
           flex: 1,
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           minWidth: 0,
         }}
       >
         {/* 헤더 */}
         <div
           style={{
-            padding: "16px 20px",
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            padding: '16px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
           }}
         >
           {/* ✅ 사이드바 토글 버튼 (아코디언) */}
@@ -282,17 +282,17 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
               setIsSidebarOpen(!isSidebarOpen);
             }}
             style={{
-              background: "none",
-              border: "none",
-              color: "white",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "4px",
-              marginRight: "10px",
-              transition: "transform 0.4s",
-              transform: isSidebarOpen ? "rotate(0deg)" : "rotate(180deg)",
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px',
+              marginRight: '10px',
+              transition: 'transform 0.4s',
+              transform: isSidebarOpen ? 'rotate(0deg)' : 'rotate(180deg)',
             }}
           >
             <svg
@@ -309,10 +309,10 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
             </svg>
           </button>
 
-          <span style={{ fontSize: "14px", fontWeight: "bold", flex: 1 }}>
+          <span style={{ fontSize: '14px', fontWeight: 'bold', flex: 1 }}>
             AI Assistant
           </span>
-          <span style={{ fontSize: "11px", opacity: 0.6 }}>{objectName}</span>
+          <span style={{ fontSize: '11px', opacity: 0.6 }}>{objectName}</span>
         </div>
 
         {/* 메시지 영역 */}
@@ -320,17 +320,17 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
           ref={scrollRef}
           style={{
             flex: 1,
-            overflowY: "auto",
-            padding: "20px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
+            overflowY: 'auto',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
           }}
           onPointerDown={(e) => e.stopPropagation()}
         >
           {isLoading && (
             <div
-              style={{ textAlign: "center", opacity: 0.5, fontSize: "12px" }}
+              style={{ textAlign: 'center', opacity: 0.5, fontSize: '12px' }}
             >
               기록 로딩 중...
             </div>
@@ -341,69 +341,65 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
             !isPending && (
               <div
                 style={{
-                  display: "flex",
-                  gap: "10px",
-                  alignItems: "flex-start",
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'flex-start',
                 }}
               >
                 <AIAvatar />
                 <div
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    padding: "12px 16px",
-                    borderRadius: "2px 18px 18px 18px",
-                    fontSize: "13px",
-                    maxWidth: "80%",
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    padding: '12px 16px',
+                    borderRadius: '2px 18px 18px 18px',
+                    fontSize: '13px',
+                    maxWidth: '80%',
                   }}
                 >
                   해당 3D 모델에 대해 궁금한 점을 질문해주세요.
                 </div>
               </div>
             )}
-          {/* 1. 기존 대화 목록 */}
+
           {history?.messages.map((msg: any) => {
-            // ✅ role 확인: 콘솔에서 보셨을 때 대문자면 "USER", 소문자면 "user"
-            const isUser = msg.role === "USER" || msg.role === "user";
+            const isUser = msg.role === 'USER';
             return (
               <div
                 key={msg.id}
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: isUser ? "flex-end" : "flex-start", // 사용자면 오른쪽
-                  width: "100%",
-                  marginBottom: "15px",
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: isUser ? 'flex-end' : 'flex-start',
                 }}
               >
-                {/* AI일 때만 아바타 표시 */}
                 {!isUser && (
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      marginBottom: "6px",
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '6px',
                     }}
                   >
                     <AIAvatar />
-                    <span style={{ fontSize: "11px", opacity: 0.7 }}>
+                    <span style={{ fontSize: '11px', opacity: 0.7 }}>
                       Assistant
                     </span>
                   </div>
                 )}
-
                 <div
                   style={{
                     backgroundColor: isUser
-                      ? "#2F54EB"
-                      : "rgba(255, 255, 255, 0.15)",
-                    padding: "10px 14px",
+                      ? '#2F54EB'
+                      : 'rgba(255, 255, 255, 0.15)',
+                    padding: '10px 14px',
                     borderRadius: isUser
-                      ? "16px 16px 2px 16px"
-                      : "2px 16px 16px 16px",
-                    alignSelf: isUser ? "flex-end" : "flex-start", // 확정 정렬
-                    maxWidth: "85%",
-                    fontSize: "13.5px",
+                      ? '16px 16px 2px 16px'
+                      : '2px 16px 16px 16px',
+                    fontSize: '13.5px',
+                    maxWidth: '85%',
+                    lineHeight: '1.5',
+                    wordBreak: 'break-word',
                   }}
                 >
                   {isUser ? msg.content : msg.answer || msg.content}
@@ -412,62 +408,34 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
             );
           })}
 
-          {/* ✅ 2. 추가: 답변 기다리는 동안 내 질문 즉시 보여주기 */}
-          {isPending && lastSentMessage && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-                width: "100%",
-                marginBottom: "15px",
-              }}
-            >
-              <div
-                style={{
-                  backgroundColor: "#2F54EB",
-                  padding: "10px 14px",
-                  borderRadius: "16px 16px 2px 16px",
-                  alignSelf: "flex-end",
-                  maxWidth: "85%",
-                  fontSize: "13.5px",
-                  color: "white",
-                }}
-              >
-                {lastSentMessage}
-              </div>
-            </div>
-          )}
-
-          {/* 3. AI 분석 중... 로딩 표시 */}
           {isPending && (
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
               }}
             >
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginBottom: "6px",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '6px',
                 }}
               >
                 <AIAvatar />
-                <span style={{ fontSize: "11px", opacity: 0.7 }}>
+                <span style={{ fontSize: '11px', opacity: 0.7 }}>
                   AI 분석 중...
                 </span>
               </div>
               <div
                 style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.05)",
-                  padding: "12px 16px",
-                  borderRadius: "2px 16px 16px 16px",
-                  fontSize: "13px",
-                  color: "rgba(255,255,255,0.5)",
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  padding: '12px 16px',
+                  borderRadius: '2px 16px 16px 16px',
+                  fontSize: '13px',
+                  color: 'rgba(255,255,255,0.5)',
                 }}
               >
                 답변을 생성하고 있습니다...
@@ -478,35 +446,35 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
 
         {/* 입력 영역 */}
         <div
-          style={{ padding: "20px", background: "rgba(0,0,0,0.15)" }}
+          style={{ padding: '20px', background: 'rgba(0,0,0,0.15)' }}
           onPointerDown={(e) => e.stopPropagation()}
         >
           {selectedPart && (
             <div
               style={{
-                marginBottom: "10px",
-                fontSize: "10px",
-                backgroundColor: "rgba(47, 84, 235, 0.4)",
-                width: "fit-content",
-                padding: "3px 10px",
-                borderRadius: "10px",
-                border: "1px solid rgba(47, 84, 235, 0.6)",
+                marginBottom: '10px',
+                fontSize: '10px',
+                backgroundColor: 'rgba(47, 84, 235, 0.4)',
+                width: 'fit-content',
+                padding: '3px 10px',
+                borderRadius: '10px',
+                border: '1px solid rgba(47, 84, 235, 0.6)',
               }}
             >
               📍 {selectedPart}
             </div>
           )}
-          <div style={{ position: "relative" }}>
+          <div style={{ position: 'relative' }}>
             <input
               style={{
-                width: "100%",
-                backgroundColor: "rgba(255, 255, 255, 0.15)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: "20px",
-                padding: "12px 45px 12px 18px",
-                color: "white",
-                fontSize: "13px",
-                outline: "none",
+                width: '100%',
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+                padding: '12px 45px 12px 18px',
+                color: 'white',
+                fontSize: '13px',
+                outline: 'none',
               }}
               value={input}
               onPointerDown={(e) => e.stopPropagation()}
@@ -514,7 +482,7 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 e.stopPropagation();
-                if (e.key === "Enter") handleSend();
+                if (e.key === 'Enter') handleSend();
               }}
               placeholder="질문을 입력하세요..."
             />
@@ -522,22 +490,22 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
               onClick={handleSend}
               disabled={isPending || !input.trim() || isLoading}
               style={{
-                position: "absolute",
-                right: "6px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%",
+                position: 'absolute',
+                right: '6px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
                 backgroundColor:
                   isPending || !input.trim()
-                    ? "rgba(255,255,255,0.1)"
-                    : "#2F54EB",
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                    ? 'rgba(255,255,255,0.1)'
+                    : '#2F54EB',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
               <svg
