@@ -3,11 +3,11 @@ export const CATEGORY_MAP = {
     label: 'Drone',
     model: 'drone',
   },
-  robot_arm: {
+  arm: {
     label: 'Robot Arm',
     model: 'arm',
   },
-  robot_gripper: {
+  gripper: {
     label: 'Robot Gripper',
     model: 'gripper',
   },
