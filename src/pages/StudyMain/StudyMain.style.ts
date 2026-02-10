@@ -100,8 +100,8 @@ export const RightControls = styled.div`
 `;
 export const AIPanelWrapper = styled.div`
   position: fixed;
-  right: 240px;
-  top: 220px;
+  right: 13vw;
+  bottom: 12vh;
 
   z-index: 20;
   pointer-events: auto;
