@@ -49,7 +49,7 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
 
   const { data: history, isLoading } = useAIHistory(sessionId);
   const { mutate: ask, isPending } = useAskAI(objectName);
-  const { mutate: deleteSession } = useDeleteSession();
+  const { mutate: deleteSession } = useDeleteSession(objectName);
   const { data: aiSessions = [] } = useAiSessions(objectName);
   const [lastSentMessage, setLastSentMessage] = useState('');
 

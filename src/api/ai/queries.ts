@@ -28,29 +28,38 @@ export const useAIHistory = (sessionId: string | null) => {
     enabled: !!sessionId, // sessionId가 있을 때만 자동 실행
   });
 };
-
 export const useAskAI = (objectName: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (request: AiChatRequest) => askAI(request),
+
     onSuccess: (data) => {
-      // 답변 수신 성공 시 해당 세션의 히스토리 갱신
+      const sessionId = data.sessionId;
       queryClient.invalidateQueries({
         queryKey: ['aiSessions', objectName],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['aiHistory', sessionId],
       });
     },
   });
 };
 
-export const useDeleteSession = () => {
+export const useDeleteSession = (objectName: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (sessionId: string) => deleteAISession(sessionId),
+
     onSuccess: (_, sessionId) => {
-      // 삭제 성공 시 캐시 제거
-      queryClient.removeQueries({ queryKey: ['aiHistory', sessionId] });
+      queryClient.removeQueries({
+        queryKey: ['aiHistory', sessionId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['aiSessions', objectName],
+      });
     },
   });
 };

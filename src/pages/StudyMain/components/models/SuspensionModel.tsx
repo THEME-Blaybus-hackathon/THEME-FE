@@ -88,27 +88,20 @@ export default function SuspensionModel({
   /* =========================
    * 선택된 파트 매칭
    * ========================= */
-  const matchBySelectedName = (
-    selected: string | null,
-    meshName: string,
-  ): boolean => {
-    if (!selected) return false;
-
-    return PART_TITLE_MATCHERS.some(
+  const matchBySelectedName = (selected: string | null, meshName: string) =>
+    !!selected &&
+    PART_TITLE_MATCHERS.some(
       ({ title, match }) => title === selected && match(meshName),
     );
-  };
 
-  const getHoveredPartTitle = () => {
-    if (!hoveredName) return null;
-
-    const matcher = PART_TITLE_MATCHERS.find(({ match }) => match(hoveredName));
-
-    return matcher?.title ?? null;
-  };
+  const getHoveredPartTitle = () =>
+    hoveredName
+      ? (PART_TITLE_MATCHERS.find(({ match }) => match(hoveredName))?.title ??
+        null)
+      : null;
 
   useEffect(() => {
-    const saved = sessionStorage.getItem('suspension');
+    const saved = sessionStorage.getItem('gripper');
     if (!saved) return;
 
     try {
@@ -139,43 +132,40 @@ export default function SuspensionModel({
    * 초기화
    * ========================= */
   useEffect(() => {
+    if (!defaultCameraPosRef.current) {
+      defaultCameraPosRef.current = camera.position.clone();
+    }
+
     scene.traverse((obj) => {
       if (!obj.name || initialPosRef.current[obj.name]) return;
-
       partsRef.current[obj.name] = obj;
       initialPosRef.current[obj.name] = obj.position.clone();
       originalScaleRef.current[obj.name] = obj.scale.clone();
     });
   }, [scene]);
 
-  /* =========================
-   * 카메라 이동
-   * ========================= */
   useEffect(() => {
     if (!selectedMeshName) {
-      cameraTargetRef.current = defaultCameraPosRef.current?.clone() ?? null;
+      isAutoCameraRef.current = false; // ✅ 자유 회전 복귀
+      cameraTargetRef.current = null;
       return;
     }
 
-    const targets = Object.values(partsRef.current).filter((obj) =>
-      matchBySelectedName(selectedMeshName, obj.name),
+    const targets = Object.values(partsRef.current).filter((o) =>
+      matchBySelectedName(selectedMeshName, o.name),
     );
-
     if (!targets.length) return;
 
     const center = new THREE.Vector3();
-    targets.forEach((obj) => {
-      const p = new THREE.Vector3();
-      obj.getWorldPosition(p);
-      center.add(p);
-    });
+    targets.forEach((o) => o.getWorldPosition(center));
     center.divideScalar(targets.length);
 
     cameraTargetRef.current = center.clone().add(new THREE.Vector3(0, 3, 10));
+    isAutoCameraRef.current = true; // ✅ 자동 모드 ON
   }, [selectedMeshName]);
 
   /* =========================
-   * 프레임 루프
+   * 카메라 이동
    * ========================= */
   useFrame(() => {
     const currentCameraPos = camera.position.clone();
@@ -224,65 +214,50 @@ export default function SuspensionModel({
         console.log('🛑 Scene stabilized → saved to sessionStorage');
         console.log(payload);
 
-        sessionStorage.setItem('suspension', JSON.stringify(payload));
+        sessionStorage.setItem('gripper', JSON.stringify(payload));
       }, 10);
     }
     Object.entries(partsRef.current).forEach(([name, obj]) => {
       const base = initialPosRef.current[name];
       if (!base) return;
 
-      const dir = getDir(name);
       obj.position.lerp(
-        base.clone().add(dir.multiplyScalar(explode * EX_FACTOR)),
+        base.clone().add(getDir(name).multiplyScalar(explode * EX_FACTOR)),
         0.1,
       );
 
+      if (!(obj instanceof THREE.Mesh)) return;
+
+      const isActive = matchBySelectedName(selectedMeshName, name);
       const isHover =
-        hoveredName && name.toLowerCase().includes(hoveredName.toLowerCase());
+        hoveredName && matchBySelectedName(getHoveredPartTitle(), name);
 
-      const isActive =
-        selectedMeshName &&
-        name.toLowerCase().includes(selectedMeshName.toLowerCase());
+      const mat = obj.material as THREE.MeshStandardMaterial;
+      if (!mat?.emissive) return;
 
-      // ✅ 스케일 호버
-      const baseScale = originalScaleRef.current[name];
-      if (baseScale) {
-        obj.scale.lerp(
-          isHover ? baseScale.clone().multiplyScalar(1.03) : baseScale,
-          0.15,
-        );
+      if (isActive) {
+        mat.emissive.set('#00e5ff');
+        mat.emissiveIntensity = 3.5;
+        mat.opacity = 0.65;
+      } else if (isHover) {
+        mat.emissive.set('#00bcd4');
+        mat.emissiveIntensity = 2.5;
+        mat.opacity = 0.8;
+      } else {
+        mat.emissive.set('#000');
+        mat.emissiveIntensity = 0;
+        mat.opacity = 1;
       }
 
-      // ✅ 색상 호버 / 선택
-      if (obj instanceof THREE.Mesh) {
-        const mat = obj.material as THREE.MeshStandardMaterial;
-        if (!mat?.emissive) return;
-
-        if (isActive) {
-          mat.emissive.set('#00e5ff');
-          mat.emissiveIntensity = 3.5;
-          mat.opacity = 0.65;
-        } else if (isHover) {
-          mat.emissive.set('#00bcd4');
-          mat.emissiveIntensity = 2.8;
-          mat.opacity = 0.8;
-        } else {
-          mat.emissive.set('#000');
-          mat.emissiveIntensity = 0;
-          mat.opacity = 1;
-        }
-
-        mat.transparent = true;
-      }
+      mat.transparent = true;
     });
 
-    // 🎯 카메라 자동 제어
+    // ✅ 드론 모델과 동일한 카메라 제어
     if (isAutoCameraRef.current && cameraTargetRef.current) {
       camera.position.lerp(cameraTargetRef.current, 0.08);
       camera.lookAt(0, 0, 0);
     }
   });
-
   /* =========================
    * 툴팁 위치 계산
    * ========================= */
@@ -302,25 +277,12 @@ export default function SuspensionModel({
       {...props}
       onPointerOver={(e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation();
-        if (!e.object.name) return;
-
-        setHoveredName(e.object.name);
-
-        const title = PART_TITLE_MATCHERS.find(({ match }) =>
-          match(e.object.name),
-        )?.title;
-
-        console.log('🖱️ Hover mesh:', e.object.name);
-        if (title) {
-          console.log('📦 Hover part:', title);
-          console.log('📝 Description:', PART_DESCRIPTION_MAP[title]);
-        }
+        if (e.object.name) setHoveredName(e.object.name);
       }}
       onPointerOut={() => setHoveredName(null)}
     >
       <primitive object={scene} />
 
-      {/* ===== Tooltip Component ===== */}
       {hoveredPartTitle && tooltipPos && (
         <PartTooltip
           position={tooltipPos}

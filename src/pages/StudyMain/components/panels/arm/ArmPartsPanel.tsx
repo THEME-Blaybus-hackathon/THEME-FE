@@ -19,7 +19,7 @@ export default function ArmPartsPanel({
   selectedMeshName,
   onSelectMesh,
 }: Props) {
-  const { data, isLoading, error } = useObjects('robot_arm');
+  const { data, isLoading, error } = useObjects('arm');
   const [openPartId, setOpenPartId] = useState<string | null>(null);
   const { data: selectedPart } = useObject(openPartId ?? '');
 
