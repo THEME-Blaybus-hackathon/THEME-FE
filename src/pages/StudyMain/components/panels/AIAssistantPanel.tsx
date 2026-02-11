@@ -5,6 +5,8 @@ import {
   useDeleteSession,
   useAiSessions,
 } from '../../../../api/ai/queries';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Props {
   objectName: string;
@@ -407,19 +409,51 @@ const AIAssistantPanel: React.FC<Props> = ({ objectName, selectedPart }) => {
 
                 <div
                   style={{
-                    backgroundColor: isUser
-                      ? '#2F54EB'
-                      : 'rgba(255, 255, 255, 0.15)',
+                    backgroundColor: isUser ? '#2F54EB' : 'transparent',
                     padding: '10px 14px',
                     borderRadius: isUser
                       ? '16px 16px 2px 16px'
                       : '2px 16px 16px 16px',
-                    alignSelf: isUser ? 'flex-end' : 'flex-start', // 확정 정렬
-                    maxWidth: '85%',
+                    alignSelf: isUser ? 'flex-end' : 'flex-start',
+                    maxWidth: isUser ? '85%' : '95%',
                     fontSize: '13.5px',
                   }}
                 >
-                  {isUser ? msg.content : msg.answer || msg.content}
+                  {isUser ? (
+                    msg.content
+                  ) : (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => (
+                          <p style={{ marginBottom: '8px', lineHeight: 1.6 }}>
+                            {children}
+                          </p>
+                        ),
+                        ul: ({ children }) => (
+                          <ul
+                            style={{
+                              paddingLeft: '18px',
+                              marginBottom: '10px',
+                              listStyle: 'none',
+                            }}
+                          >
+                            {children}
+                          </ul>
+                        ),
+                        li: ({ children }) => (
+                          <li style={{ marginBottom: '6px' }}>{children}</li>
+                        ),
+                        strong: ({ children }) => (
+                          <span style={{ fontWeight: 700, color: '#9FB7FF' }}>
+                            {children}
+                          </span>
+                        ),
+                      }}
+                    >
+                      {msg.answer || msg.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
               </div>
             );
